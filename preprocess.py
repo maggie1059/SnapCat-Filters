@@ -2,46 +2,7 @@
 # import pandas as pd
 # import math
 
-# # Check if row has any NaN values 
-# def has_nan(keypoints):
-#     for i in range(len(keypoints)):
-#         if math.isnan(keypoints[i]):
-#             return True
-#     return False
 
-# # Read the data as Dataframes
-# training = pd.read_csv('data/training.csv')
-# test = pd.read_csv('data/test.csv')
-
-# # Get training data
-# imgs_train = []
-# points_train = []
-# for i in range(len(training)):
-#     points = training.iloc[i,:-1]
-#     if has_nan(points) is False:
-#         test_image = training.iloc[i,-1]        # Get the image data
-#         test_image = np.array(test_image.split(' ')).astype(int)    
-#         test_image = np.reshape(test_image, (96,96))        # Reshape into an array of size 96x96
-#         test_image = test_image/255         # Normalize image
-#         imgs_train.append(test_image)
-        
-#         keypoints = training.iloc[i,:-1].astype(int).values
-#         keypoints = keypoints/96 - 0.5  # Normalize keypoint coordinates
-#         points_train.append(keypoints)
-
-# imgs_train = np.array(imgs_train)    
-# points_train = np.array(points_train)
-
-# # Get test data
-# imgs_test = []
-# for i in range(len(test)):
-#     test_image = test.iloc[i,-1]        # Get the image data
-#     test_image = np.array(test_image.split(' ')).astype(int)
-#     test_image = np.reshape(test_image, (96,96))        # Reshape into an array of size 96x96
-#     test_image = test_image/255     # Normalize image
-#     imgs_test.append(test_image)
-    
-# imgs_test = np.array(imgs_test)
 
 
 # # Data Augmentation by mirroring the images

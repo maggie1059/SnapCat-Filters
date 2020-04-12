@@ -3,25 +3,51 @@ import os
 import cv2
 import argparse
 from skimage import io
+from skimage.color import rgb2gray
+import matplotlib.pyplot as plt
+from model import *
 
 def main():
-    data_dir = os.path.dirname(__file__) + './cat-dataset/CAT_00'
+    data_dir = os.path.dirname(__file__) + './cat-dataset/small'
     image_paths, coordinate_paths = get_cats(data_dir)
-    images, coords = load_data(image_paths, coordinate_paths)
-    print(len(images))
+    images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
+    coords_orig = parse_coordinates(coords_orig)
+    # this stuff will be inside a for loop for each epoch
+    
+    images = np.copy(images_orig)
+    coords = np.copy(coords_orig)
+
+    images, coords = mirror(images, coords)
+    images, coords = pad_images(images, coords, max_x, max_y)
+    print(images[-1].shape)
+    print(coords[-1])
+    plt.imshow(images[-1])
+    plt.scatter(coords[-1,:,0],coords[-1,:,1], c='k')
+    plt.show()
+
+    # Train the model
+    model = get_model()
+    compile_model(model)
+    train_model(model, images, coords)
 
 def load_data(image_paths, coordinate_paths):
     images = []
+    max_x = 0
+    max_y = 0
     for filepath in image_paths:
         im = io.imread(filepath)
+        im = rgb2gray(im)
         images.append(im)
+        max_x = max(max_x, im.shape[1])
+        max_y = max(max_y, im.shape[0])
     coords_list = []
     for cat_path in coordinate_paths:
         with open(cat_path) as f:
             coords = f.read().split()
+            coords = [int(x) for x in coords]
             coords_list.append(coords)
             f.close()
-    return images, coords_list
+    return np.array(images), coords_list, max_x, max_y
 
 def get_cats(search_path):
     image_paths = []
@@ -33,7 +59,60 @@ def get_cats(search_path):
                 image_paths.append(filepath)
             if filepath.endswith(".jpg.cat"):
                 coordinate_paths.append(filepath)
+    image_paths = sorted(image_paths)
+    coordinate_paths = sorted(coordinate_paths)
     return image_paths, coordinate_paths
+
+def parse_coordinates(coords_list):
+    # discard any files with more than 9 coordinates
+    # separate pairs of coordinates
+    final_coords = []
+    for i in coords_list:
+        if i[0] == 9:
+            coords = np.array(i[1:])
+            coords = np.reshape(coords, (9,2))
+            final_coords.append(coords)
+    # final_coords = np.array(final_coords)
+    return final_coords
+
+# process before this so images + coords are both np arrays
+def train_test_split(images, coords, test_split=0.2):
+    indices = range(len(images))
+    np.random.shuffle(indices)
+    images = images[indices,:,:]
+    coords = coords[indices]
+    return images, coords
+
+def pad_images(images, coords, max_x, max_y):
+    # print(max_x, max_y)
+    # max_x = 500
+    # max_y = 500
+    # for image, coord in zip(images,coords):
+    new_images = []
+    for i in range(len(images)):
+        x_diff = max_x - images[i].shape[1]
+        y_diff = max_y - images[i].shape[0]
+        top = int(np.floor(np.random.rand()*y_diff))
+        bottom = y_diff - top
+        left = int(np.floor(np.random.rand()*x_diff))
+        right = x_diff-left
+        coords[i,:,0] += left
+        coords[i,:,1] += top
+        new_image = np.pad(images[i], ((top, bottom),(left, right)), 'constant', constant_values=(0,0))
+        new_images.append(new_image)
+        # print(images[i].shape)
+    return new_images, coords
+
+def mirror(images, coords, mirror_pct=0.3):
+    for i in range(len(images)):
+        if np.random.rand() < mirror_pct:
+            images[i] = np.fliplr(images[i])
+            coords[i,:,0] = images[i].shape[1] - coords[i,:,0]
+    return images, coords
+
+# def data_augmentation(image_paths, coord_paths):
+    # normalize
+
 
 if __name__ == '__main__':
     # parser = argparse.ArgumentParser()
