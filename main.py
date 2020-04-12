@@ -12,23 +12,25 @@ def main():
     image_paths, coordinate_paths = get_cats(data_dir)
     images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
     coords_orig = parse_coordinates(coords_orig)
+    train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
+    model = get_model()
+    compile_model(model)
     # this stuff will be inside a for loop for each epoch
     
-    images = np.copy(images_orig)
-    coords = np.copy(coords_orig)
+    images = np.copy(train_images)
+    coords = np.copy(train_coords)
 
     images, coords = mirror(images, coords)
     images, coords = pad_images(images, coords, max_x, max_y)
-    print(images[-1].shape)
-    print(coords[-1])
-    plt.imshow(images[-1])
-    plt.scatter(coords[-1,:,0],coords[-1,:,1], c='k')
-    plt.show()
+    # print(coords[-1])
+    # plt.imshow(images[-1])
+    # plt.scatter(coords[-1,:,0],coords[-1,:,1], c='k')
+    # plt.show()
 
     # Train the model
-    model = get_model()
-    compile_model(model)
-    train_model(model, images, coords)
+    # model = get_model()
+    # compile_model(model)
+    # train_model(model, images, coords)
 
 def load_data(image_paths, coordinate_paths):
     images = []
@@ -73,15 +75,20 @@ def parse_coordinates(coords_list):
             coords = np.reshape(coords, (9,2))
             final_coords.append(coords)
     # final_coords = np.array(final_coords)
-    return final_coords
+    return np.array(final_coords)
 
 # process before this so images + coords are both np arrays
 def train_test_split(images, coords, test_split=0.2):
-    indices = range(len(images))
+    indices = np.arange(len(images))
     np.random.shuffle(indices)
-    images = images[indices,:,:]
+    images = images[indices]
     coords = coords[indices]
-    return images, coords
+    num_test = int(len(images) * test_split)
+    test_images = images[:num_test]
+    train_images = images[num_test:]
+    test_coords = coords[:num_test]
+    train_coords = coords[num_test:]
+    return train_images, test_images, train_coords, test_coords
 
 def pad_images(images, coords, max_x, max_y):
     # print(max_x, max_y)
@@ -101,7 +108,7 @@ def pad_images(images, coords, max_x, max_y):
         new_image = np.pad(images[i], ((top, bottom),(left, right)), 'constant', constant_values=(0,0))
         new_images.append(new_image)
         # print(images[i].shape)
-    return new_images, coords
+    return np.array(new_images), coords
 
 def mirror(images, coords, mirror_pct=0.3):
     for i in range(len(images)):
