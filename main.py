@@ -7,6 +7,8 @@ from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
 from model import Model
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 def main():
     data_dir = os.path.dirname(__file__) + './cat-dataset/CAT_00'
     image_paths, coordinate_paths = get_cats(data_dir)
