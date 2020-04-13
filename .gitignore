@@ -1,1 +1,4 @@
 cat-dataset/**
+.DS_Store
+__pycache__/**
+weights/**

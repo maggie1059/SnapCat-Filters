@@ -5,16 +5,16 @@ import argparse
 from skimage import io
 from skimage.color import rgb2gray
 import matplotlib.pyplot as plt
-from model import *
+from model import Model
 
 def main():
-    data_dir = os.path.dirname(__file__) + './cat-dataset/small'
+    data_dir = os.path.dirname(__file__) + './cat-dataset/CAT_00'
     image_paths, coordinate_paths = get_cats(data_dir)
     images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
     coords_orig = parse_coordinates(coords_orig)
     train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
-    model = get_model()
-    compile_model(model)
+    model = Model(max_x, max_y)
+    model.compile_model()
     # this stuff will be inside a for loop for each epoch
     
     images = np.copy(train_images)
@@ -22,15 +22,16 @@ def main():
 
     images, coords = mirror(images, coords)
     images, coords = pad_images(images, coords, max_x, max_y)
+    images = np.expand_dims(images, axis=-1)
+    coords = np.reshape(coords, (-1,18,))
+    model.train_model(images, coords)
     # print(coords[-1])
     # plt.imshow(images[-1])
     # plt.scatter(coords[-1,:,0],coords[-1,:,1], c='k')
     # plt.show()
 
-    # Train the model
-    # model = get_model()
-    # compile_model(model)
-    # train_model(model, images, coords)
+
+    
 
 def load_data(image_paths, coordinate_paths):
     images = []
