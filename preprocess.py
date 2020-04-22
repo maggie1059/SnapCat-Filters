@@ -45,8 +45,8 @@ def save_data(images, coords):
         np.save('./processed/' + counter + 'c', coords[i])
 
 def save_image(image, coord, filenum):
-    np.save('./processed/' + filenum, image)
-    np.save('./processed/' + filenum + 'c', coord)
+    np.save('./processed/' + str(filenum), image)
+    np.save('./processed/' + str(filenum) + 'c', coord)
 
 def load_data(image_paths, coordinate_paths):
     images = []
