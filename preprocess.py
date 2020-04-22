@@ -25,21 +25,28 @@ def main():
     
     images = np.copy(train_images)
     coords = np.copy(train_coords)
-
-    images, coords = mirror(images, coords)
-    print("done with mirror")
-    images, coords = pad_images(images, coords, max_x, max_y)
-    print("done with padding")
-    images, coords = resize_images(images, coords, 224, 224)
-    print("done with preprocessing")
-    save_data(images, coords)
-    print("saved")
+    for i in range(len(images)):
+        image = images[i]
+        coord = coords[i]
+        image, coord = mirror1(image, coord)
+        # print("done with mirror")
+        image, coord = pad_image(image, coord, max_x, max_y)
+        # print("done with padding")
+        image, coord = resize_image(image, coord, 224, 224)
+        # print("done with preprocessing")
+        save_image(image, coord, i)
+        # print("saved")
+        print(i)
     
 def save_data(images, coords):
     counter = 0
     for i in range(len(images)):
         np.save('./processed/' + counter, images[i])
         np.save('./processed/' + counter + 'c', coords[i])
+
+def save_image(image, coord, filenum):
+    np.save('./processed/' + filenum, image)
+    np.save('./processed/' + filenum + 'c', coord)
 
 def load_data(image_paths, coordinate_paths):
     images = []
@@ -121,12 +128,31 @@ def pad_images(images, coords, max_x, max_y):
         # print(images[i].shape)
     return new_images, coords
 
+def pad_image(image, coord, max_x, max_y):
+    new_image = np.zeros((max_y, max_x))
+    x_diff = max_x - image.shape[1]
+    y_diff = max_y - image.shape[0]
+    top = int(np.floor(np.random.rand()*y_diff))
+    bottom = y_diff - top
+    left = int(np.floor(np.random.rand()*x_diff))
+    right = x_diff-left
+    coord[:,0] += left
+    coord[:,1] += top
+    new_image[top:max_y-bottom,left:max_x-right] = image
+    return new_image, coord
+
 def mirror(images, coords, mirror_pct=0.3):
     for i in range(len(images)):
         if np.random.rand() < mirror_pct:
             images[i] = np.fliplr(images[i])
             coords[i,:,0] = images[i].shape[1] - coords[i,:,0]
     return images, coords
+
+def mirror1(image, coord, mirror_pct=0.3):
+    if np.random.rand() < mirror_pct:
+        image = np.fliplr(image)
+        coord[:,0] = image.shape[1] - coord[:,0]
+    return image, coord
 
 def resize_images(images, coords, new_height, new_width):
     height = images.shape[1]
@@ -142,6 +168,18 @@ def resize_images(images, coords, new_height, new_width):
         coords[i,:,1] = coords[i,:,1]
     return np.array(new_images), coords.astype(np.int)
 
+def resize_image(image, coord, new_height, new_width):
+    height = image.shape[0]
+    width = image.shape[1]
+    scale_width = new_width/float(width)
+    scale_height = new_height/float(height)
+
+    new_image = resize(image, (new_height, new_width))
+    coord[:, 0] *= scale_width
+    coord[:,0] = coord[:,0]
+    coord[:,1] *= scale_height
+    coord[:,1] = coord[:,1]
+    return np.array(new_image), coord.astype(np.int)
 
 if __name__ == '__main__':
     main()
