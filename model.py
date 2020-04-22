@@ -37,5 +37,5 @@ class Model:
 
     def train_model(self, imgs_train, points_train):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint-{epoch:02d}.hdf5')
-        self.model.fit(imgs_train, points_train, epochs=300, batch_size=100, callbacks=[checkpoint])
+        self.model.fit(imgs_train, points_train, epochs=300, batch_size=30, callbacks=[checkpoint])
 

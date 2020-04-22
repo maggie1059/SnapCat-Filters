@@ -4,6 +4,7 @@ import cv2
 import argparse
 from skimage import io
 from skimage.color import rgb2gray
+from skimage.transform import resize, rescale
 import matplotlib.pyplot as plt
 from model import Model
 
@@ -15,7 +16,7 @@ def main():
     images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
     coords_orig = parse_coordinates(coords_orig)
     train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
-    model = Model(max_x, max_y)
+    model = Model(224, 224)
     model.compile_model()
     # this stuff will be inside a for loop for each epoch
     
@@ -24,6 +25,7 @@ def main():
 
     images, coords = mirror(images, coords)
     images, coords = pad_images(images, coords, max_x, max_y)
+    images, coords = resize_images(images, coords, 224, 224)
     images = np.expand_dims(images, axis=-1)
     coords = np.reshape(coords, (-1,18,))
     model.train_model(images, coords)
@@ -31,9 +33,6 @@ def main():
     # plt.imshow(images[-1])
     # plt.scatter(coords[-1,:,0],coords[-1,:,1], c='k')
     # plt.show()
-
-
-    
 
 def load_data(image_paths, coordinate_paths):
     images = []
@@ -78,7 +77,7 @@ def parse_coordinates(coords_list):
             coords = np.reshape(coords, (9,2))
             final_coords.append(coords)
     # final_coords = np.array(final_coords)
-    return np.array(final_coords)
+    return np.array(final_coords, dtype=np.float64)
 
 # process before this so images + coords are both np arrays
 def train_test_split(images, coords, test_split=0.2):
@@ -120,8 +119,20 @@ def mirror(images, coords, mirror_pct=0.3):
             coords[i,:,0] = images[i].shape[1] - coords[i,:,0]
     return images, coords
 
-# def data_augmentation(image_paths, coord_paths):
-    # normalize
+def resize_images(images, coords, new_height, new_width):
+    height = images.shape[1]
+    width = images.shape[2]
+    scale_width = new_width/float(width)
+    scale_height = new_height/float(height)
+    new_images = []
+    # coords = float(coords)
+    for i in range(len(images)):
+        new_images.append(resize(images[i], (new_height, new_width)))
+        coords[i,:, 0] *= scale_width
+        coords[i,:,0] = coords[i,:,0]
+        coords[i, :,1] *= scale_height
+        coords[i,:,1] = coords[i,:,1]
+    return np.array(new_images), coords.astype(np.int)
 
 
 if __name__ == '__main__':
