@@ -25,24 +25,33 @@ def main():
     
     images = np.copy(train_images)
     coords = np.copy(train_coords)
+    all_ims = np.zeros((len(images), 224, 224))
+    all_coords = np.zeros(coords.shape)
     for i in range(len(images)):
         image = images[i]
         coord = coords[i]
-        image, coord = mirror1(image, coord)
+        # image, coord = mirror1(image, coord)
         # print("done with mirror")
+        max_x = max(image.shape)
+        max_y = max_x
         image, coord = pad_image(image, coord, max_x, max_y)
         # print("done with padding")
         image, coord = resize_image(image, coord, 224, 224)
         # print("done with preprocessing")
-        save_image(image, coord, i)
+        all_ims[i] = image
+        all_coords[i] = coord
+        # save_image(image, coord, i)
         # print("saved")
         print(i)
+    save_data(all_ims, all_coords)
     
 def save_data(images, coords):
-    counter = 0
-    for i in range(len(images)):
-        np.save('./processed/' + counter, images[i])
-        np.save('./processed/' + counter + 'c', coords[i])
+    # counter = 0
+    # for i in range(len(images)):
+    #     np.save('./processed_imgs/' + counter, images[i])
+    #     np.save('./processed_coords/' + counter, coords[i])
+    np.save('./processed_imgs/img', images)
+    np.save('./processed_coords/coord', coords)
 
 def save_image(image, coord, filenum):
     np.save('./processed/' + str(filenum), image)
