@@ -24,8 +24,11 @@ def main():
     coords = np.copy(train_coords)
 
     images, coords = mirror(images, coords)
+    print("done with mirror")
     images, coords = pad_images(images, coords, max_x, max_y)
+    print("done with padding")
     images, coords = resize_images(images, coords, 224, 224)
+    print("done with preprocessing")
     images = np.expand_dims(images, axis=-1)
     coords = np.reshape(coords, (-1,18,))
     model.train_model(images, coords)
