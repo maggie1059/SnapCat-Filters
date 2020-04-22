@@ -45,15 +45,12 @@ def load_data(image_paths, coordinate_paths):
     images = []
     max_x = 0
     max_y = 0
-    counter = 0
     for filepath in image_paths:
-        print(counter)
         im = imread(filepath)
         im = rgb2gray(im)
         images.append(im)
         max_x = max(max_x, im.shape[1])
         max_y = max(max_y, im.shape[0])
-        counter+=1
     coords_list = []
     for cat_path in coordinate_paths:
         with open(cat_path) as f:
@@ -107,8 +104,9 @@ def pad_images(images, coords, max_x, max_y):
     # max_x = 500
     # max_y = 500
     # for image, coord in zip(images,coords):
-    new_images = []
+    new_images = np.zeros((len(images), max_y, max_x))
     for i in range(len(images)):
+        print(i)
         x_diff = max_x - images[i].shape[1]
         y_diff = max_y - images[i].shape[0]
         top = int(np.floor(np.random.rand()*y_diff))
@@ -117,10 +115,11 @@ def pad_images(images, coords, max_x, max_y):
         right = x_diff-left
         coords[i,:,0] += left
         coords[i,:,1] += top
-        new_image = np.pad(images[i], ((top, bottom),(left, right)), 'constant', constant_values=(0,0))
-        new_images.append(new_image)
+        new_images[i,top:max_y-bottom,left:max_x-right] = images[i]
+        # new_image = np.pad(images[i], ((top, bottom),(left, right)), 'constant', constant_values=(0,0))
+        # new_images.append(new_image)
         # print(images[i].shape)
-    return np.array(new_images), coords
+    return new_images, coords
 
 def mirror(images, coords, mirror_pct=0.3):
     for i in range(len(images)):
