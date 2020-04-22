@@ -13,9 +13,12 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 def main():
     data_dir = os.path.dirname(__file__) + './cat-dataset/CAT_00'
     image_paths, coordinate_paths = get_cats(data_dir)
+    print("retrieved paths")
     images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
+    print("loaded images")
     coords_orig = parse_coordinates(coords_orig)
     train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
+    print("parsed coords and split data")
     model = Model(224, 224)
     model.compile_model()
     # this stuff will be inside a for loop for each epoch
