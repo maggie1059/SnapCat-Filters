@@ -12,8 +12,8 @@ from model import Model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    for i in range(7):
-        data_dir = 'cat-dataset/CAT_0' + str(i)
+    for j in range(7):
+        data_dir = 'cat-dataset/CAT_0' + str(j)
         print("DATA DIR: ", data_dir)
         image_paths, coordinate_paths = get_cats(data_dir)
         print("num image paths: ", len(image_paths))
@@ -45,7 +45,7 @@ def main():
             # save_image(image, coord, i)
             # print("saved")
             # print(i)
-        save_data(all_ims, all_coords, i)
+        save_data(all_ims, all_coords, j)
     
 def save_data(images, coords, folder):
     indices = np.arange(len(images))
