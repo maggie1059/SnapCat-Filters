@@ -40,23 +40,25 @@ class Model:
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = ["accuracy"])
 
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
+        images = np.expand_dims(images, axis=-1)
         coords = np.load(coord_path)
+        coords = np.reshape(coords, (-1, 18,))
         return images, coords
     
     def train_model(self):
-        checkpoint = ModelCheckpoint(filepath='weights/checkpoint-{epoch:02d}.hdf5')
-        epochs = 700
+        checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_accuracy", verbose=1, save_best_only=True, mode="max")
+        epochs = 2
         batch_size = 30
 
-        for i in range(epochs):
-            print("epoch: ", i)
-            folder = i%7
+        for j in range(epochs):
+            print("epoch: ", j)
+            folder = j%7
             images, coords = self.get_imgs(folder)
             # shuffle examples and indices in same way
             indices = np.arange(len(images))
@@ -64,10 +66,8 @@ class Model:
             X = images[indices]
             Y = coords[indices]
             # for each batch
-            for i in range(int(len(X)/batch_size)-1):
-                x = X[i*batch_size:(i+1)*batch_size]
-                y = Y[i*batch_size:(i+1)*batch_size]
-                self.model.fit(x, y, epochs=1, batch_size=batch_size, callbacks=[checkpoint])
+            self.model.fit(X, Y, validation_split=0.2, epochs=1, batch_size=batch_size, callbacks=[checkpoint])
+              
     
     # Load weights for a previously trained model
     def load_trained_model(self):
@@ -75,14 +75,18 @@ class Model:
 
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords):
-        img = img.numpy()
-        coords = coords.numpy()
+        img_copy = np.copy(img)
+        img = np.reshape(img, (1, 224, 224, 1))
         predicted = self.model.predict(img, verbose=1)
-        predicted = np.reshape(predicted, (9,2))
-        plt.imshow(img)
+        predicted = tf.reshape(predicted, (9,2))
+        predicted = predicted.numpy()
+        print("PREDICTED: ", predicted)
+        plt.imshow(img_copy)
         plt.scatter(coords[:,0],coords[:,1], c='k')
         plt.scatter(predicted[:,0],predicted[:,1], c='r')
         plt.show()
+        plt.savefig("output.png")
+        plt.close()
 
     def accuracy(self, y_true, y_pred, threshold=3):
         y_true = tf.reshape(y_true, (-1,9,2))
