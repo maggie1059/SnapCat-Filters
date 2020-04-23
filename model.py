@@ -39,11 +39,11 @@ class Model:
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_absolute_error', optimizer='adam', metrics = ['accuracy'])
+        self.model.compile(loss='mean_square_error', optimizer='adam', metrics = [self.accuracy])
 
     def train_model(self, imgs_train, points_train):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint-{epoch:02d}.hdf5')
-        self.model.fit(imgs_train, points_train, epochs=300, batch_size=30, callbacks=[checkpoint])
+        self.model.fit(imgs_train, points_train, epochs=500, batch_size=30, callbacks=[checkpoint])
     
     # Load weights for a previously trained model
     def load_trained_model(self):
@@ -64,8 +64,26 @@ class Model:
         plt.scatter(coords[:,0],coords[:,1], c='k')
         plt.show()
 
+    def accuracy(self, y_true, y_pred, threshold):
+        y_true = np.reshape(y_true, (-1,9,2))
+        y_pred = np.reshape(y_pred, (-1,9,2))
+        distances = np.linalg.norm(y_pred - y_true, axis=2)
+        out = np.where(distances<threshold, 1, 0)
+        acc = np.mean(out)
+        # print(acc)
+        return acc
+
+    def test(self, test_data):
+        """ Testing routine. """
+
+        # Run model on test set
+        self.model.evaluate(
+            x=test_data,
+            verbose=1,
+        )
+
     # Testing the model
-    def test_model(self, imgs_test):    
+    # def test_model(self, imgs_test):    
         # data_path = join('','*g')
         # files = glob.glob('./cat-dataset/CAT_01/00000100_002.jpg')
         # for i,f1 in enumerate(files):       # Test model performance on a screenshot for the webcam
@@ -79,10 +97,10 @@ class Model:
         # visualize_points(test_img, prediction[0])
         
         # Test on first 10 samples of the test set
-        for i in range(len(imgs_test)):
-            # test_img_input = np.reshape(imgs_test[i], (1,96,96,1))      # Model takes input of shape = [batch_size, height, width, no. of channels]
-            prediction = self.model.predict(imgs_test[i])      # shape = [batch_size, values]
-            print(prediction)
-            self.visualize_points(imgs_test[i], prediction[0])
-            if i == 10:
-                break
+        # for i in range(len(imgs_test)):
+        #     # test_img_input = np.reshape(imgs_test[i], (1,96,96,1))      # Model takes input of shape = [batch_size, height, width, no. of channels]
+        #     prediction = self.model.predict(imgs_test[i])      # shape = [batch_size, values]
+        #     print(prediction)
+        #     self.visualize_points(imgs_test[i], prediction[0])
+        #     if i == 10:
+        #         break

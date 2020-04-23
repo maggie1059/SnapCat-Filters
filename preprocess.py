@@ -12,19 +12,19 @@ from model import Model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    data_dir = os.path.dirname(__file__) + './cat-dataset/CAT_00'
+    # for i in range(7):
+    data_dir = os.path.dirname(__file__) + './cat-dataset'# + str(i)
     image_paths, coordinate_paths = get_cats(data_dir)
     print("retrieved paths")
     images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
     print("loaded images")
     coords_orig = parse_coordinates(coords_orig)
-    train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
+    # train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
     print("parsed coords and split data")
 
     # this stuff will be inside a for loop for each epoch
-    
-    images = np.copy(train_images)
-    coords = np.copy(train_coords)
+    images = np.copy(images_orig)
+    coords = np.copy(coords_orig)
     all_ims = np.zeros((len(images), 224, 224))
     all_coords = np.zeros(coords.shape)
     for i in range(len(images)):
@@ -42,16 +42,25 @@ def main():
         all_coords[i] = coord
         # save_image(image, coord, i)
         # print("saved")
-        print(i)
-    save_data(all_ims, all_coords)
+        # print(i)
+    save_data(all_ims, all_coords, 0)
     
-def save_data(images, coords):
-    # counter = 0
-    # for i in range(len(images)):
-    #     np.save('./processed_imgs/' + counter, images[i])
-    #     np.save('./processed_coords/' + counter, coords[i])
-    np.save('./processed_imgs/img', images)
-    np.save('./processed_coords/coord', coords)
+def save_data(images, coords, folder):
+    indices = np.arange(len(images))
+    np.random.shuffle(indices)
+    images = images[indices]
+    coords = coords[indices]
+    num_test = int(len(images) * 0.2)
+    test_images = images[:num_test]
+    train_images = images[num_test:]
+    test_coords = coords[:num_test]
+    train_coords = coords[num_test:]
+
+    np.save('./processed_test_imgs/img' + str(folder), test_images)
+    np.save('./processed_test_coords/coord'+ str(folder), test_coords)
+    
+    np.save('./processed_train_imgs/img'+ str(folder), train_images)
+    np.save('./processed_train_coords/coord'+ str(folder), train_coords)
 
 def save_image(image, coord, filenum):
     np.save('./processed/' + str(filenum), image)

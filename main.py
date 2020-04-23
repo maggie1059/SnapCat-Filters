@@ -11,8 +11,14 @@ from model import Model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    img_path = os.path.dirname(__file__) + './processed_imgs/img.npy'
-    coord_path = os.path.dirname(__file__) + './processed_coords/coord.npy'
+    # np.save('./processed_test_imgs/img' + str(folder), test_images)
+    # np.save('./processed_test_coords/coord'+ str(folder), test_coords)
+    
+    # np.save('./processed_train_imgs/img'+ str(folder), train_images)
+    # np.save('./processed_train_coords/coord'+ str(folder), train_coords)
+
+    img_path = os.path.dirname(__file__) + './processed_train_imgs/img0.npy'
+    coord_path = os.path.dirname(__file__) + './processed_train_coords/coord0.npy'
     images = np.load(img_path)
     coords = np.load(coord_path)
     model = Model(224, 224)
