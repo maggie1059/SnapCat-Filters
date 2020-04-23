@@ -40,7 +40,7 @@ class Model:
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_square_error', optimizer='adam', metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = [self.accuracy])
 
     def get_imgs(self, folder):
         img_path = os.path.dirname(__file__) + './processed_train_imgs/img' + str(folder) + '.npy'
