@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from skimage.io import imshow
+import os
 
 class Model:
 
@@ -41,13 +42,36 @@ class Model:
     def compile_model(self):
         self.model.compile(loss='mean_square_error', optimizer='adam', metrics = [self.accuracy])
 
+    def get_imgs(self, folder):
+        img_path = os.path.dirname(__file__) + './processed_train_imgs/img' + str(folder) + '.npy'
+        coord_path = os.path.dirname(__file__) + './processed_train_coords/coord' + str(folder) + '.npy'
+        images = np.load(img_path)
+        coords = np.load(coord_path)
+        return images, coords
+    
     def train_model(self, imgs_train, points_train):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint-{epoch:02d}.hdf5')
-        self.model.fit(imgs_train, points_train, epochs=500, batch_size=30, callbacks=[checkpoint])
+        epochs = 700
+        batch_size = 30
+
+        for i in range(epochs):
+            print("epoch: ", i)
+            folder = i%7
+            images, coords = self.get_imgs(folder)
+            # shuffle examples and indices in same way
+            indices = np.arange(len(images))
+            np.random.shuffle(indices)
+            X = images[indices]
+            Y = coords[indices]
+            # for each batch
+            for i in range(int(len(X)/batch_size)-1):
+                x = X[i*batch_size:(i+1)*batch_size]
+                y = Y[i*batch_size:(i+1)*batch_size]
+                self.model.fit(x, y, epochs=1, batch_size=batch_size, callbacks=[checkpoint])
     
     # Load weights for a previously trained model
     def load_trained_model(self):
-        self.model.load_weights('weights/checkpoint-300.hdf5')
+        self.model.load_weights('weights/checkpoint-699.hdf5')
 
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords):
