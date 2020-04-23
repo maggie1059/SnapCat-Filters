@@ -12,38 +12,38 @@ from model import Model
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    # for i in range(7):
-    data_dir = os.path.dirname(__file__) + './cat-dataset'# + str(i)
-    image_paths, coordinate_paths = get_cats(data_dir)
-    print("retrieved paths")
-    images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
-    print("loaded images")
-    coords_orig = parse_coordinates(coords_orig)
-    # train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
-    print("parsed coords and split data")
+    for i in range(7):
+        data_dir = os.path.dirname(__file__) + './cat-dataset' + str(i)
+        image_paths, coordinate_paths = get_cats(data_dir)
+        print("retrieved paths")
+        images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
+        print("loaded images")
+        coords_orig = parse_coordinates(coords_orig)
+        # train_images, test_images, train_coords, test_coords = train_test_split(images_orig, coords_orig)
+        print("parsed coords and split data")
 
-    # this stuff will be inside a for loop for each epoch
-    images = np.copy(images_orig)
-    coords = np.copy(coords_orig)
-    all_ims = np.zeros((len(images), 224, 224))
-    all_coords = np.zeros(coords.shape)
-    for i in range(len(images)):
-        image = images[i]
-        coord = coords[i]
-        # image, coord = mirror1(image, coord)
-        # print("done with mirror")
-        max_x = max(image.shape)
-        max_y = max_x
-        image, coord = pad_image(image, coord, max_x, max_y)
-        # print("done with padding")
-        image, coord = resize_image(image, coord, 224, 224)
-        # print("done with preprocessing")
-        all_ims[i] = image
-        all_coords[i] = coord
-        # save_image(image, coord, i)
-        # print("saved")
-        # print(i)
-    save_data(all_ims, all_coords, 0)
+        # this stuff will be inside a for loop for each epoch
+        images = np.copy(images_orig)
+        coords = np.copy(coords_orig)
+        all_ims = np.zeros((len(images), 224, 224))
+        all_coords = np.zeros(coords.shape)
+        for i in range(len(images)):
+            image = images[i]
+            coord = coords[i]
+            # image, coord = mirror1(image, coord)
+            # print("done with mirror")
+            max_x = max(image.shape)
+            max_y = max_x
+            image, coord = pad_image(image, coord, max_x, max_y)
+            # print("done with padding")
+            image, coord = resize_image(image, coord, 224, 224)
+            # print("done with preprocessing")
+            all_ims[i] = image
+            all_coords[i] = coord
+            # save_image(image, coord, i)
+            # print("saved")
+            # print(i)
+        save_data(all_ims, all_coords, i)
     
 def save_data(images, coords, folder):
     indices = np.arange(len(images))

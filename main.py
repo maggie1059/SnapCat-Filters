@@ -26,6 +26,7 @@ def main():
     images = np.expand_dims(images, axis=-1)
     coords = np.reshape(coords, (-1,18,))
     model.train_model(images, coords)
+    model.visualize_points(images[0], coords[0])
 
 
 def load_data(image_paths, coordinate_paths):

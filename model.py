@@ -51,17 +51,11 @@ class Model:
 
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords):
-        # fig,ax = plt.subplots(1)
-        # ax.set_aspect('equal')
-        # imshow(img)
-        # for i in range(0,len(points),2):
-        #     x_renorm = (points[i]+0.5)*96       # Denormalize x-coordinate
-        #     y_renorm = (points[i+1]+0.5)*96     # Denormalize y-coordinate
-        #     circ = Circle((x_renorm, y_renorm),1, color='r')    # Plot the keypoints at the x and y coordinates
-        #     ax.add_patch(circ)
-        # plt.show()
+        predicted = self.model.predict(img, verbose=1)
+        predicted = np.reshape(predicted, (9,2))
         plt.imshow(img)
         plt.scatter(coords[:,0],coords[:,1], c='k')
+        plt.scatter(predicted[:,0],predicted[:,1], c='r')
         plt.show()
 
     def accuracy(self, y_true, y_pred, threshold):
