@@ -43,13 +43,13 @@ class Model:
         self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = [self.accuracy])
 
     def get_imgs(self, folder):
-        img_path = os.path.dirname(__file__) + '/processed_train_imgs/img' + str(folder) + '.npy'
-        coord_path = os.path.dirname(__file__) + '/processed_train_coords/coord' + str(folder) + '.npy'
+        img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
+        coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
         coords = np.load(coord_path)
         return images, coords
     
-    def train_model(self, imgs_train, points_train):
+    def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint-{epoch:02d}.hdf5')
         epochs = 700
         batch_size = 30

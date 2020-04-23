@@ -17,15 +17,13 @@ def main():
     # np.save('./processed_train_imgs/img'+ str(folder), train_images)
     # np.save('./processed_train_coords/coord'+ str(folder), train_coords)
 
-    img_path = os.path.dirname(__file__) + './processed_train_imgs/img0.npy'
-    coord_path = os.path.dirname(__file__) + './processed_train_coords/coord0.npy'
+    img_path = 'processed_train_imgs/img0.npy'
+    coord_path = 'processed_train_coords/coord0.npy'
     images = np.load(img_path)
     coords = np.load(coord_path)
     model = Model(224, 224)
     model.compile_model()
-    images = np.expand_dims(images, axis=-1)
-    coords = np.reshape(coords, (-1,18,))
-    model.train_model(images, coords)
+    model.train_model()
     model.visualize_points(images[0], coords[0])
 
 
