@@ -13,8 +13,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
     for i in range(7):
-        data_dir = os.path.dirname(__file__) + './cat-dataset' + str(i)
+        data_dir = 'cat-dataset/CAT_0' + str(i)
+        print("DATA DIR: ", data_dir)
         image_paths, coordinate_paths = get_cats(data_dir)
+        print("num image paths: ", len(image_paths))
         print("retrieved paths")
         images_orig, coords_orig, max_x, max_y = load_data(image_paths, coordinate_paths)
         print("loaded images")

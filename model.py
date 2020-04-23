@@ -40,11 +40,11 @@ class Model:
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_square_error', optimizer='adam', metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = [self.accuracy])
 
     def get_imgs(self, folder):
-        img_path = os.path.dirname(__file__) + './processed_train_imgs/img' + str(folder) + '.npy'
-        coord_path = os.path.dirname(__file__) + './processed_train_coords/coord' + str(folder) + '.npy'
+        img_path = os.path.dirname(__file__) + '/processed_train_imgs/img' + str(folder) + '.npy'
+        coord_path = os.path.dirname(__file__) + '/processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
         coords = np.load(coord_path)
         return images, coords
@@ -75,6 +75,8 @@ class Model:
 
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords):
+        img = img.numpy()
+        coords = coords.numpy()
         predicted = self.model.predict(img, verbose=1)
         predicted = np.reshape(predicted, (9,2))
         plt.imshow(img)
@@ -82,12 +84,12 @@ class Model:
         plt.scatter(predicted[:,0],predicted[:,1], c='r')
         plt.show()
 
-    def accuracy(self, y_true, y_pred, threshold):
-        y_true = np.reshape(y_true, (-1,9,2))
-        y_pred = np.reshape(y_pred, (-1,9,2))
-        distances = np.linalg.norm(y_pred - y_true, axis=2)
-        out = np.where(distances<threshold, 1, 0)
-        acc = np.mean(out)
+    def accuracy(self, y_true, y_pred, threshold=3):
+        y_true = tf.reshape(y_true, (-1,9,2))
+        y_pred = tf.reshape(y_pred, (-1,9,2))
+        distances = tf.norm(y_pred - y_true, axis=2)
+        out = tf.where(distances<threshold, 1, 0)
+        acc = tf.reduce_mean(out)
         # print(acc)
         return acc
 
