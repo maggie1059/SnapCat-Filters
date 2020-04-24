@@ -53,7 +53,7 @@ class Model:
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_accuracy", verbose=1, save_best_only=True, mode="max")
-        epochs = 2
+        epochs = 10
         batch_size = 30
 
         for j in range(epochs):
@@ -74,7 +74,7 @@ class Model:
         self.model.load_weights('weights/checkpoint-699.hdf5')
 
     # Function which plots an image with it's corresponding keypoints
-    def visualize_points(self, img, coords):
+    def visualize_points(self, img, coords, img_index):
         img_copy = np.copy(img)
         img = np.reshape(img, (1, 224, 224, 1))
         predicted = self.model.predict(img, verbose=1)
@@ -85,7 +85,7 @@ class Model:
         plt.scatter(coords[:,0],coords[:,1], c='k')
         plt.scatter(predicted[:,0],predicted[:,1], c='r')
         plt.show()
-        plt.savefig("output.png")
+        plt.savefig("output" + str(img_index) + ".png")
         plt.close()
 
     def accuracy(self, y_true, y_pred, threshold=3):

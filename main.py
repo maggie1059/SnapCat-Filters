@@ -24,7 +24,8 @@ def main():
     model = Model(224, 224)
     model.compile_model()
     model.train_model()
-    model.visualize_points(images[0], coords[0])
+    for img_index in range(10, 13):
+        model.visualize_points(images[img_index], coords[img_index], img_index)
 
 
 def load_data(image_paths, coordinate_paths):
