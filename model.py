@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from skimage.io import imshow
 import os
+import gc
 
 class Model:
 
@@ -53,8 +54,8 @@ class Model:
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_accuracy", verbose=1, save_best_only=True, mode="max")
-        epochs = 90
-        batch_size = 10
+        epochs = 350
+        batch_size = 32
 
         for j in range(epochs):
             print("epoch: ", j)
@@ -67,6 +68,7 @@ class Model:
             Y = coords[indices]
             # for each batch
             self.model.fit(X, Y, validation_split=0.2, epochs=1, batch_size=batch_size, callbacks=[checkpoint])
+            gc.collect()
               
     
     # Load weights for a previously trained model
