@@ -53,7 +53,7 @@ class Model:
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_accuracy", verbose=1, save_best_only=True, mode="max")
-        epochs = 10
+        epochs = 90
         batch_size = 10
 
         for j in range(epochs):
