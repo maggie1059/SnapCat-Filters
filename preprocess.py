@@ -5,14 +5,13 @@ import argparse
 from skimage import io
 from cv2 import imread
 from skimage.color import rgb2gray
-from skimage.transform import resize, rescale
 import matplotlib.pyplot as plt
 from model import Model
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    for j in range(7):
+    for j in range(1):
         data_dir = 'cat-dataset/CAT_0' + str(j)
         print("DATA DIR: ", data_dir)
         image_paths, coordinate_paths = get_cats(data_dir)
@@ -36,22 +35,21 @@ def main():
             # print("done with mirror")
             max_x = max(image.shape)
             max_y = max_x
-            image, coord = pad_image(image, coord, max_x, max_y)
-            # print("done with padding")
+
             image, coord = resize_image(image, coord, 224, 224)
+            # image, coord = pad_image(image, coord, max_x, max_y)
+            # print("done with padding")
+
             # print("done with preprocessing")
             all_ims[i] = image
             all_coords[i] = coord
             # save_image(image, coord, i)
             # print("saved")
             # print(i)
+        all_ims /= 255.
         save_data(all_ims, all_coords, j)
     
 def save_data(images, coords, folder):
-    indices = np.arange(len(images))
-    np.random.shuffle(indices)
-    images = images[indices]
-    coords = coords[indices]
     num_test = int(len(images) * 0.2)
     test_images = images[:num_test]
     train_images = images[num_test:]
@@ -177,28 +175,50 @@ def mirror1(image, coord, mirror_pct=0.3):
 def resize_images(images, coords, new_height, new_width):
     height = images.shape[1]
     width = images.shape[2]
-    scale_width = new_width/float(width)
-    scale_height = new_height/float(height)
+    max_dim = max(height, width)
+    scale_width = new_width/float(max_dim)
+    scale_height = new_height/float(max_dim)
+
+    new_h = int(scale_height*height)
+    new_w = int(scale_width*width)
     new_images = []
     for i in range(len(images)):
-        new_images.append(resize(images[i], (new_height, new_width)))
         coords[i,:, 0] *= scale_width
-        coords[i,:,0] = coords[i,:,0]
         coords[i, :,1] *= scale_height
-        coords[i,:,1] = coords[i,:,1]
+        d_w = new_width - new_w
+        d_h = new_height - new_h 
+        top, bottom = d_h // 2, 3*d_h // 2
+        left, right = d_w // 2, 3*d_w // 2
+
+        color = [0, 0, 0]
+        new_image = cv2.copyMakeBorder(cv2.resize(images[i], (new_w, new_h)), top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+        coords[i, :, 0] += left
+        coords[i, :, 1] += top
     return np.array(new_images), coords.astype(np.int)
 
 def resize_image(image, coord, new_height, new_width):
     height = image.shape[0]
     width = image.shape[1]
-    scale_width = new_width/float(width)
-    scale_height = new_height/float(height)
+    max_dim = max(height, width)
+    scale_width = new_width/float(max_dim)
+    scale_height = new_height/float(max_dim)
 
-    new_image = resize(image, (new_height, new_width))
+    new_h = int(scale_height*height)
+    new_w = int(scale_width*width)
+
+    new_image = cv2.resize(image, (new_w, new_h))
     coord[:, 0] *= scale_width
-    coord[:,0] = coord[:,0]
     coord[:,1] *= scale_height
-    coord[:,1] = coord[:,1]
+    d_w = new_width - new_w
+    d_h = new_height - new_h 
+    top, bottom = d_h // 2, d_h - (d_h // 2)
+    left, right = d_w // 2, d_w - (d_w // 2)
+
+    color = [0, 0, 0]
+    new_image = cv2.copyMakeBorder(new_image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+    coord[:, 0] += left
+    coord[:, 1] += top
+
     return np.array(new_image), coord.astype(np.int)
 
 if __name__ == '__main__':

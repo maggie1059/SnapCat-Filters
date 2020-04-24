@@ -19,20 +19,22 @@ def main():
 
     img_path = 'processed_train_imgs/img0.npy'
     coord_path = 'processed_train_coords/coord0.npy'
-    images = np.load(img_path) / 255.
+    images = np.load(img_path)
     coords = np.load(coord_path)
     model = Model(224, 224)
     model.compile_model()
+    model.load_trained_model()
     model.train_model()
     model.load_trained_model()
 
     
     test_img_path = "processed_test_imgs/img0.npy"
     test_coord_path = "processed_test_coords/coord0.npy"
-    test_images = np.load(test_img_path) / 255.
+    test_images = np.load(test_img_path)
     test_coords = np.load(test_coord_path)
     model.test(test_images, test_coords)
-    for img_index in range(10, 13):
+    indices = [10, 100, 500]
+    for img_index in indices:
         model.visualize_points(images[img_index], coords[img_index], img_index)
 
 

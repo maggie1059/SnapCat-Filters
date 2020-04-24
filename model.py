@@ -21,32 +21,32 @@ class Model:
     # Define the architecture
     def get_model(self):
         model = Sequential()
-        model.add(Conv2D(64, kernel_size=3, strides=2, padding='same', activation='relu', input_shape=(self.max_y, self.max_x, 1)))
+        model.add(Conv2D(64, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu, input_shape=(self.max_y, self.max_x, 1)))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation='relu'))
+        model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation='relu'))
+        model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(Conv2D(64, kernel_size=1, strides=2, padding='same', activation='relu'))
+        model.add(Conv2D(64, kernel_size=1, strides=2, padding='same', activation=tf.nn.leaky_relu))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
         model.add(Flatten())
         
-        model.add(Dense(128, activation='relu'))
+        model.add(Dense(128, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.1))
-        model.add(Dense(256, activation='relu'))
+        model.add(Dense(256, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.2))
-        model.add(Dense(128, activation='relu'))
+        model.add(Dense(128, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.1))
         model.add(Dense(18))
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = ["accuracy"])
+        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = [self.accuracy])
 
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
-        images = np.load(img_path) / 255.
+        images = np.load(img_path)
         images = np.expand_dims(images, axis=-1)
         coords = np.load(coord_path)
         coords = np.reshape(coords, (-1, 18))
@@ -54,12 +54,13 @@ class Model:
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 350
+        epochs = 100
         batch_size = 32
 
         for j in range(epochs):
             print("epoch: ", j)
-            folder = j%7
+            #folder = j%7
+            folder = 0
             images, coords = self.get_imgs(folder)
             # shuffle examples and indices in same way
             indices = np.arange(len(images))
@@ -90,11 +91,13 @@ class Model:
         plt.savefig("output" + str(img_index) + ".png")
         plt.close()
 
-    def accuracy(self, y_true, y_pred, threshold=3):
+    def accuracy(self, y_true, y_pred, threshold=10):
         y_true = tf.reshape(y_true, (-1,9,2))
         y_pred = tf.reshape(y_pred, (-1,9,2))
         distances = tf.norm(y_pred - y_true, axis=2)
-        out = tf.where(distances<threshold, 1, 0)
+        print("DISTANCES: ", distances.shape)
+        out = tf.where(distances<threshold, 1., 0.)
+        out = tf.reduce_sum(out, axis=1) / 9.
         acc = tf.reduce_mean(out)
         # print(acc)
         return acc
