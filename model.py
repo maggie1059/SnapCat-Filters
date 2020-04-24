@@ -53,7 +53,7 @@ class Model:
         return images, coords
     
     def train_model(self):
-        checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_accuracy", verbose=1, save_best_only=True, mode="max")
+        checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
         epochs = 350
         batch_size = 32
 
@@ -73,7 +73,7 @@ class Model:
     
     # Load weights for a previously trained model
     def load_trained_model(self):
-        self.model.load_weights('weights/checkpoint-699.hdf5')
+        self.model.load_weights('weights/checkpoint.hdf5')
 
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords, img_index):
