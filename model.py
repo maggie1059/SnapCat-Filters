@@ -46,10 +46,10 @@ class Model:
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
-        images = np.load(img_path)
+        images = np.load(img_path) / 255.
         images = np.expand_dims(images, axis=-1)
         coords = np.load(coord_path)
-        coords = np.reshape(coords, (-1, 18,))
+        coords = np.reshape(coords, (-1, 18))
         return images, coords
     
     def train_model(self):
@@ -102,7 +102,7 @@ class Model:
     def test(self, test_imgs, test_coords):
         """ Testing routine. """
         test_imgs = np.expand_dims(test_imgs, axis=-1)
-        test_coords = np.reshape(test_coords, (-1, 18,))
+        test_coords = np.reshape(test_coords, (-1, 18))
 
         # Run model on test set
         self.model.evaluate(
