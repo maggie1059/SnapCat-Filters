@@ -24,6 +24,12 @@ def main():
     model = Model(224, 224)
     model.compile_model()
     model.train_model()
+    
+    test_img_path = "processed_test_imgs/img0.npy"
+    test_coord_path = "processed_test_coords/coord0.npy"
+    test_images = np.load(test_img_path)
+    test_coords = np.load(test_coord_path)
+    model.test(test_images, test_coords)
     for img_index in range(10, 13):
         model.visualize_points(images[img_index], coords[img_index], img_index)
 

@@ -54,7 +54,7 @@ class Model:
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_accuracy", verbose=1, save_best_only=True, mode="max")
         epochs = 10
-        batch_size = 30
+        batch_size = 10
 
         for j in range(epochs):
             print("epoch: ", j)
@@ -97,12 +97,15 @@ class Model:
         # print(acc)
         return acc
 
-    def test(self, test_data):
+    def test(self, test_imgs, test_coords):
         """ Testing routine. """
+        test_imgs = np.expand_dims(test_imgs, axis=-1)
+        test_coords = np.reshape(test_coords, (-1, 18,))
 
         # Run model on test set
         self.model.evaluate(
-            x=test_data,
+            x=test_imgs,
+            y=test_coords,
             verbose=1,
         )
 
