@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 import os
 import cv2
 import argparse
@@ -7,24 +8,24 @@ from skimage.color import rgb2gray
 from skimage.transform import resize, rescale
 import matplotlib.pyplot as plt
 from model import Model
+#from vgg_model import VGGModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    # np.save('./processed_test_imgs/img' + str(folder), test_images)
-    # np.save('./processed_test_coords/coord'+ str(folder), test_coords)
-    
-    # np.save('./processed_train_imgs/img'+ str(folder), train_images)
-    # np.save('./processed_train_coords/coord'+ str(folder), train_coords)
+    vgg_weights_path = "vgg16_imagenet.h5"
 
     img_path = 'processed_train_imgs/img0.npy'
     coord_path = 'processed_train_coords/coord0.npy'
     images = np.load(img_path)
     coords = np.load(coord_path)
     model = Model(224, 224)
+    #model = VGGModel()
+    #model(tf.keras.Input(shape=(224,224,3)))
+    #model.load_weights(vgg_weights_path, by_name=True)
     model.compile_model()
-    model.load_trained_model()
-    model.train_model()
+    #model.load_trained_model()
+    #model.train_model()
     model.load_trained_model()
 
     
@@ -33,7 +34,7 @@ def main():
     test_images = np.load(test_img_path)
     test_coords = np.load(test_coord_path)
     model.test(test_images, test_coords)
-    indices = [10, 100, 500]
+    indices = [10, 100, 200, 300]
     for img_index in indices:
         model.visualize_points(images[img_index], coords[img_index], img_index)
 

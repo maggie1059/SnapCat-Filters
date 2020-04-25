@@ -1,7 +1,7 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras import Sequential
-from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 import glob
 from os.path import join
 import numpy as np
@@ -10,10 +10,12 @@ from matplotlib.patches import Circle
 from skimage.io import imshow
 import os
 import gc
+import preprocess
 
-class Model:
+class Model():
 
     def __init__(self, max_x, max_y):
+        super(Model, self).__init__() 
         self.max_x = max_x
         self.max_y = max_y
         self.model = self.get_model()
@@ -23,55 +25,70 @@ class Model:
         model = Sequential()
         model.add(Conv2D(64, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu, input_shape=(self.max_y, self.max_x, 1)))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+        model.add(BatchNormalization())
         model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
+        model.add(BatchNormalization())
+        model.add(Conv2D(256, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(Conv2D(64, kernel_size=1, strides=2, padding='same', activation=tf.nn.leaky_relu))
+        model.add(BatchNormalization())
+        model.add(Conv2D(512, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
         model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+        model.add(BatchNormalization())
         model.add(Flatten())
         
-        model.add(Dense(128, activation=tf.nn.leaky_relu))
+        model.add(Dense(512, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.1))
         model.add(Dense(256, activation=tf.nn.leaky_relu))
-        model.add(Dropout(0.2))
+        model.add(Dropout(0.1))
         model.add(Dense(128, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.1))
         model.add(Dense(18))
+        model.summary()
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_squared_error', optimizer='adam', metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5), metrics = [self.accuracy])
 
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
-        images = np.expand_dims(images, axis=-1)
         coords = np.load(coord_path)
-        coords = np.reshape(coords, (-1, 18))
         return images, coords
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 100
+        epochs = 50
         batch_size = 32
 
         for j in range(epochs):
             print("epoch: ", j)
-            #folder = j%7
-            folder = 0
+            folder = j%7
             images, coords = self.get_imgs(folder)
+            # randomly mirror images
+            # images, coords, = preprocess.mirror(images, coords)
+            images = np.expand_dims(images, axis=-1)
+            coords = np.reshape(coords, (-1, 18))
+
             # shuffle examples and indices in same way
             indices = np.arange(len(images))
             np.random.shuffle(indices)
             X = images[indices]
             Y = coords[indices]
             # for each batch
-            self.model.fit(X, Y, validation_split=0.2, epochs=1, batch_size=batch_size, callbacks=[checkpoint])
+            self.model.fit(X, Y, validation_split=0.3, epochs=1, batch_size=batch_size, callbacks=[checkpoint, ReduceLROnPlateau(monitor="val_loss", factor=0.2, patience=5, verbose=1, mode="auto")])
             gc.collect()
-              
     
+    def get_test_data(self):
+        test_img_path = "processed_test_imgs/img0.npy"
+        test_coord_path = "processed_test_coords/coord0.npy"
+        test_images = np.load(test_img_path)
+        test_coords = np.load(test_coord_path)
+        test_images = np.expand_dims(test_images, axis=-1)
+        test_coords = np.reshape(test_coords, (-1, 18))
+        return test_images, test_coords
+
     # Load weights for a previously trained model
     def load_trained_model(self):
         self.model.load_weights('weights/checkpoint.hdf5')
@@ -79,6 +96,7 @@ class Model:
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords, img_index):
         img_copy = np.copy(img)
+        self.test(np.reshape(img, (1, 224, 224)), coords)
         img = np.reshape(img, (1, 224, 224, 1))
         predicted = self.model.predict(img, verbose=1)
         predicted = tf.reshape(predicted, (9,2))
@@ -91,13 +109,11 @@ class Model:
         plt.savefig("output" + str(img_index) + ".png")
         plt.close()
 
-    def accuracy(self, y_true, y_pred, threshold=10):
+    def accuracy(self, y_true, y_pred, threshold=16):
         y_true = tf.reshape(y_true, (-1,9,2))
         y_pred = tf.reshape(y_pred, (-1,9,2))
         distances = tf.norm(y_pred - y_true, axis=2)
-        print("DISTANCES: ", distances.shape)
         out = tf.where(distances<threshold, 1., 0.)
-        out = tf.reduce_sum(out, axis=1) / 9.
         acc = tf.reduce_mean(out)
         # print(acc)
         return acc
