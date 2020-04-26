@@ -79,10 +79,12 @@ class Model():
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
         coords = np.load(coord_path)
-        for image in images:
-            image = gray2rgb(image)
-        print(images.shape)
-        return images, coords
+        new_ims = np.zeros((images.shape[0], 224, 224, 3))
+        for i in range(len(images)):
+            image = gray2rgb(images[i])
+            new_ims[i] = image
+        print(new_ims.shape)
+        return new_ims, coords
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
