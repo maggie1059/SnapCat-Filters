@@ -7,7 +7,7 @@ from skimage import io
 from skimage.color import rgb2gray
 from skimage.transform import resize, rescale
 import matplotlib.pyplot as plt
-from model import MobileNetV2
+from model import Model
 #from vgg_model import VGGModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
