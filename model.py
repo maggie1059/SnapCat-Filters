@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 from skimage.io import imshow
+from skimage.color import gray2rgb
 import os
 import gc
 import preprocess
@@ -78,6 +79,7 @@ class Model():
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
         coords = np.load(coord_path)
+        images = rgb2gray(images)
         return images, coords
     
     def train_model(self):
