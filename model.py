@@ -30,16 +30,17 @@ class Model():
 
         mobilenetv2_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
 
-        net = Dense(128, activation='relu') #(mobilenetv2_model.layers[-1].output)
-        net = Dense(64, activation='relu') #(net)
-        net = Dense(18, activation='linear') #(net)
+        # net = Dense(128, activation='relu') #(mobilenetv2_model.layers[-1].output)
+        # net = Dense(64, activation='relu') #(net)
+        # net = Dense(18, activation='linear') #(net)
 
         # model = Model(inputs=inputs, outputs=net)
 
         # model.summary()
         model = Sequential()
         model.add(mobilenetv2_model)
-        model.add(net)
+        # model.add(net)
+
         # mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', pooling='max')
         # model.add(mobilenetv2_model)
         # model.add(Dense(128, activation='relu'))
@@ -61,18 +62,18 @@ class Model():
         # model.add(BatchNormalization())
         # model.add(Flatten())
         
-        # model.add(Dense(512, activation=tf.nn.leaky_relu))
-        # model.add(Dropout(0.1))
-        # model.add(Dense(256, activation=tf.nn.leaky_relu))
-        # model.add(Dropout(0.1))
-        # model.add(Dense(128, activation=tf.nn.leaky_relu))
-        # model.add(Dropout(0.1))
-        # model.add(Dense(18))
+        model.add(Dense(512, activation=tf.nn.leaky_relu))
+        model.add(Dropout(0.1))
+        model.add(Dense(256, activation=tf.nn.leaky_relu))
+        model.add(Dropout(0.1))
+        model.add(Dense(128, activation=tf.nn.leaky_relu))
+        model.add(Dropout(0.1))
+        model.add(Dense(18))
         model.summary()
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-6), metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics = [self.accuracy])
 
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
@@ -83,12 +84,12 @@ class Model():
         for i in range(len(images)):
             image = gray2rgb(images[i])
             new_ims[i] = image
-        print(new_ims.shape)
+        # print(new_ims.shape)
         return new_ims, coords
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 150
+        epochs = 250
         batch_size = 32
 
         for j in range(epochs):
