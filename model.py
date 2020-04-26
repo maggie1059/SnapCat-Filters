@@ -97,7 +97,7 @@ class Model():
             images, coords = self.get_imgs(folder)
             # randomly mirror images
             # images, coords, = preprocess.mirror(images, coords)
-            images = np.expand_dims(images, axis=-1)
+            # images = np.expand_dims(images, axis=-1)
             coords = np.reshape(coords, (-1, 18))
 
             # shuffle examples and indices in same way
