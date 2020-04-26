@@ -11,7 +11,7 @@ from skimage.io import imshow
 import os
 import gc
 import preprocess
-from keras.applications import mobilenetv2
+from tensorflow.keras.applications import mobilenetv2
 
 class Model():
 
