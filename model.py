@@ -11,6 +11,7 @@ from skimage.io import imshow
 import os
 import gc
 import preprocess
+from keras.applications import mobilenetv2
 
 class Model():
 
@@ -23,19 +24,26 @@ class Model():
     # Define the architecture
     def get_model(self):
         model = Sequential()
-        model.add(Conv2D(64, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu, input_shape=(self.max_y, self.max_x, 1)))
-        model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(BatchNormalization())
-        model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
-        model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(BatchNormalization())
-        model.add(Conv2D(256, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
-        model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(BatchNormalization())
-        model.add(Conv2D(512, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
-        model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        model.add(BatchNormalization())
-        model.add(Flatten())
+        mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', pooling='max')
+        model.add(mobilenetv2_model)
+        # model.add(Dense(128, activation='relu'))
+        # model.add(Dense(64, activation='relu'))
+        # model.add(Dense(18, activation='linear'))
+
+        # model = Model(inputs=inputs, outputs=net)
+        # model.add(Conv2D(64, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu, input_shape=(self.max_y, self.max_x, 1)))
+        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+        # model.add(BatchNormalization())
+        # model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
+        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+        # model.add(BatchNormalization())
+        # model.add(Conv2D(256, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
+        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+        # model.add(BatchNormalization())
+        # model.add(Conv2D(512, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
+        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
+        # model.add(BatchNormalization())
+        # model.add(Flatten())
         
         model.add(Dense(512, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.1))
@@ -59,7 +67,7 @@ class Model():
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 150
+        epochs = 250
         batch_size = 32
 
         for j in range(epochs):
