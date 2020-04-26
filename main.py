@@ -25,7 +25,7 @@ def main():
     #model.load_weights(vgg_weights_path, by_name=True)
     model.compile_model()
     #model.load_trained_model()
-    #model.train_model()
+    model.train_model()
     model.load_trained_model()
 
     
@@ -33,6 +33,9 @@ def main():
     test_coord_path = "processed_test_coords/coord0.npy"
     test_images = np.load(test_img_path)
     test_coords = np.load(test_coord_path)
+    print("TRAIN ACCURACY: ")
+    model.test(images, coords)
+    print("TEST ACCURACY: ")
     model.test(test_images, test_coords)
     indices = [10, 100, 200, 300]
     for img_index in indices:

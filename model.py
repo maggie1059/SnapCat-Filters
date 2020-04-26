@@ -48,7 +48,7 @@ class Model():
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5), metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-6), metrics = [self.accuracy])
 
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
@@ -59,7 +59,7 @@ class Model():
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 50
+        epochs = 150
         batch_size = 32
 
         for j in range(epochs):
@@ -77,7 +77,7 @@ class Model():
             X = images[indices]
             Y = coords[indices]
             # for each batch
-            self.model.fit(X, Y, validation_split=0.3, epochs=1, batch_size=batch_size, callbacks=[checkpoint, ReduceLROnPlateau(monitor="val_loss", factor=0.2, patience=5, verbose=1, mode="auto")])
+            self.model.fit(X, Y, validation_split=0.1, epochs=1, batch_size=batch_size, callbacks=[checkpoint, ReduceLROnPlateau(monitor="val_loss", factor=0.2, patience=5, verbose=1, mode="auto")])
             gc.collect()
     
     def get_test_data(self):
