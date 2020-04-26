@@ -125,14 +125,15 @@ class Model():
 
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords, img_index):
-        img_copy = np.copy(img)
-        self.test(np.reshape(img, (1, 224, 224, 3)), coords)
-        img = np.reshape(img, (1, 224, 224, 3))
+        img_c = np.copy(img)
+        img_copy = gray2rgb(img_c)
+        self.test(np.reshape(img_copy, (1, 224, 224, 3)), coords)
+        img = np.reshape(img_copy, (1, 224, 224, 3))
         predicted = self.model.predict(img, verbose=1)
         predicted = tf.reshape(predicted, (9,2))
         predicted = predicted.numpy()
         print("PREDICTED: ", predicted)
-        plt.imshow(img_copy)
+        plt.imshow(img_c)
         plt.scatter(coords[:,0],coords[:,1], c='k')
         plt.scatter(predicted[:,0],predicted[:,1], c='r')
         plt.show()
