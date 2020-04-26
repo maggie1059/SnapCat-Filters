@@ -79,7 +79,8 @@ class Model():
         coord_path = 'processed_train_coords/coord' + str(folder) + '.npy'
         images = np.load(img_path)
         coords = np.load(coord_path)
-        images = rgb2gray(images)
+        for image in images:
+            image = gray2rgb(image)
         return images, coords
     
     def train_model(self):
