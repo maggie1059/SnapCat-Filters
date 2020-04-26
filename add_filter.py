@@ -48,6 +48,11 @@ def ashhat_filter(image, coord):
 
     hat = np.array(hat,dtype = np.float64)
     hat /= 255.0
+
+    new_chan = np.copy(hat[:,:,0])
+    hat[:,:,0] = hat[:,:,2]
+    hat[:,:,2] = new_chan
+
     image = np.array(image,dtype =np.float64)
     image /= 255.0
 
