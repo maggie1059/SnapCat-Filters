@@ -12,13 +12,13 @@ from skimage.io import imshow
 import os
 import gc
 import preprocess
-from tensorflow.keras.applications import mobilenetv2
-from tensorflow.keras.models import Model
+# from tensorflow.keras.applications import MobileNetV2
+# from tensorflow.keras.models import Model
 
-class MobileNetV2(Model):
+class Model():
 
     def __init__(self, max_x, max_y):
-        super(MobileNetV2, self).__init__() 
+        super(Model, self).__init__() 
         self.max_x = max_x
         self.max_y = max_y
         self.model = self.get_model()
@@ -27,16 +27,18 @@ class MobileNetV2(Model):
     def get_model(self):
         inputs = Input(shape=(224, 224, 3))
 
-        mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
+        mobilenetv2_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
 
-        net = Dense(128, activation='relu')(mobilenetv2_model.layers[-1].output)
-        net = Dense(64, activation='relu')(net)
-        net = Dense(18, activation='linear')(net)
+        net = Dense(128, activation='relu') #(mobilenetv2_model.layers[-1].output)
+        net = Dense(64, activation='relu') #(net)
+        net = Dense(18, activation='linear') #(net)
 
-        model = Model(inputs=inputs, outputs=net)
+        # model = Model(inputs=inputs, outputs=net)
 
-        model.summary()
-        # model = Sequential()
+        # model.summary()
+        model = Sequential()
+        model.add(mobilenetv2_model)
+        model.add(net)
         # mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', pooling='max')
         # model.add(mobilenetv2_model)
         # model.add(Dense(128, activation='relu'))
@@ -65,7 +67,7 @@ class MobileNetV2(Model):
         # model.add(Dense(128, activation=tf.nn.leaky_relu))
         # model.add(Dropout(0.1))
         # model.add(Dense(18))
-        # model.summary()
+        model.summary()
         return model
 
     def compile_model(self):
