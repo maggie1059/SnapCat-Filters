@@ -27,7 +27,7 @@ class Model():
     def get_model(self):
         inputs = Input(shape=(224, 224, 3))
 
-        mobilenetv2_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
+        mobilenetv2_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
 
         net = Dense(128, activation='relu') #(mobilenetv2_model.layers[-1].output)
         net = Dense(64, activation='relu') #(net)
