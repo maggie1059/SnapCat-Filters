@@ -115,7 +115,7 @@ class Model():
         test_coord_path = "processed_test_coords/coord0.npy"
         test_images = np.load(test_img_path)
         test_coords = np.load(test_coord_path)
-        test_images = np.expand_dims(test_images, axis=-1)
+        # test_images = np.expand_dims(test_images, axis=-1)
         test_coords = np.reshape(test_coords, (-1, 18))
         return test_images, test_coords
 
@@ -126,8 +126,8 @@ class Model():
     # Function which plots an image with it's corresponding keypoints
     def visualize_points(self, img, coords, img_index):
         img_copy = np.copy(img)
-        self.test(np.reshape(img, (1, 224, 224)), coords)
-        img = np.reshape(img, (1, 224, 224, 1))
+        self.test(np.reshape(img, (1, 224, 224, 3)), coords)
+        img = np.reshape(img, (1, 224, 224, 3))
         predicted = self.model.predict(img, verbose=1)
         predicted = tf.reshape(predicted, (9,2))
         predicted = predicted.numpy()
@@ -150,7 +150,7 @@ class Model():
 
     def test(self, test_imgs, test_coords):
         """ Testing routine. """
-        test_imgs = np.expand_dims(test_imgs, axis=-1)
+        # test_imgs = np.expand_dims(test_imgs, axis=-1)
         test_coords = np.reshape(test_coords, (-1, 18))
 
         # Run model on test set
