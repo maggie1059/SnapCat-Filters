@@ -19,7 +19,7 @@ def main():
     coord_path = 'processed_train_coords/coord0.npy'
     images = np.load(img_path)
     coords = np.load(coord_path)
-    model = MobileNetV2(224, 224)
+    model = Model(224, 224)
     #model = VGGModel()
     #model(tf.keras.Input(shape=(224,224,3)))
     #model.load_weights(vgg_weights_path, by_name=True)
