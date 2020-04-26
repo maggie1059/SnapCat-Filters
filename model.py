@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 import glob
@@ -11,21 +11,33 @@ from skimage.io import imshow
 import os
 import gc
 import preprocess
-from tensorflow.keras.applications import mobilenetv2
+from keras.applications import mobilenetv2
+from keras.models import Model
 
-class Model():
+class MobileNetV2(Model):
 
     def __init__(self, max_x, max_y):
-        super(Model, self).__init__() 
+        super(MobileNetV2, self).__init__() 
         self.max_x = max_x
         self.max_y = max_y
         self.model = self.get_model()
 
     # Define the architecture
     def get_model(self):
-        model = Sequential()
-        mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', pooling='max')
-        model.add(mobilenetv2_model)
+        inputs = Input(shape=(224, 224, 3))
+
+        mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
+
+        net = Dense(128, activation='relu')(mobilenetv2_model.layers[-1].output)
+        net = Dense(64, activation='relu')(net)
+        net = Dense(18, activation='linear')(net)
+
+        model = Model(inputs=inputs, outputs=net)
+
+        model.summary()
+        # model = Sequential()
+        # mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', pooling='max')
+        # model.add(mobilenetv2_model)
         # model.add(Dense(128, activation='relu'))
         # model.add(Dense(64, activation='relu'))
         # model.add(Dense(18, activation='linear'))
@@ -45,14 +57,14 @@ class Model():
         # model.add(BatchNormalization())
         # model.add(Flatten())
         
-        model.add(Dense(512, activation=tf.nn.leaky_relu))
-        model.add(Dropout(0.1))
-        model.add(Dense(256, activation=tf.nn.leaky_relu))
-        model.add(Dropout(0.1))
-        model.add(Dense(128, activation=tf.nn.leaky_relu))
-        model.add(Dropout(0.1))
-        model.add(Dense(18))
-        model.summary()
+        # model.add(Dense(512, activation=tf.nn.leaky_relu))
+        # model.add(Dropout(0.1))
+        # model.add(Dense(256, activation=tf.nn.leaky_relu))
+        # model.add(Dropout(0.1))
+        # model.add(Dense(128, activation=tf.nn.leaky_relu))
+        # model.add(Dropout(0.1))
+        # model.add(Dense(18))
+        # model.summary()
         return model
 
     def compile_model(self):
@@ -67,7 +79,7 @@ class Model():
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 250
+        epochs = 150
         batch_size = 32
 
         for j in range(epochs):

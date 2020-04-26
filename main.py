@@ -7,7 +7,7 @@ from skimage import io
 from skimage.color import rgb2gray
 from skimage.transform import resize, rescale
 import matplotlib.pyplot as plt
-from model import Model
+from model import MobileNetV2
 #from vgg_model import VGGModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -19,7 +19,7 @@ def main():
     coord_path = 'processed_train_coords/coord0.npy'
     images = np.load(img_path)
     coords = np.load(coord_path)
-    model = Model(224, 224)
+    model = MobileNetV2(224, 224)
     #model = VGGModel()
     #model(tf.keras.Input(shape=(224,224,3)))
     #model.load_weights(vgg_weights_path, by_name=True)
