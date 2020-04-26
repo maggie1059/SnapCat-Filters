@@ -1,5 +1,5 @@
 import tensorflow as tf
-import keras
+# import keras
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
@@ -12,8 +12,8 @@ from skimage.io import imshow
 import os
 import gc
 import preprocess
-from keras.applications import mobilenetv2
-from keras.models import Model
+from tensorflow.keras.applications import mobilenetv2
+from tensorflow.keras.models import Model
 
 class MobileNetV2(Model):
 
