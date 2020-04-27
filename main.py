@@ -25,8 +25,9 @@ def main():
     #model.load_weights(vgg_weights_path, by_name=True)
     model.compile_model()
     #model.load_trained_model()
-    model.train_model()
+    # model.train_model()
     model.load_trained_model()
+    
 
     
     test_img_path = "processed_test_imgs/img0.npy"
@@ -39,7 +40,7 @@ def main():
     model.test(test_images, test_coords)
     indices = [10, 100, 200, 300]
     for img_index in indices:
-        model.visualize_points(images[img_index], coords[img_index], img_index)
+        model.visualize_points(test_images[img_index], test_coords[img_index], img_index)
 
 
 def load_data(image_paths, coordinate_paths):
