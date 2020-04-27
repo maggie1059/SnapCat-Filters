@@ -3,7 +3,7 @@ import cv2
 from skimage.transform import resize
 import imutils
 
-def bow_filter(image, coords, bow_filter_path="bow.png", output_image_path="cat_bow.png")
+def bow_filter(image, coords, bow_filter_path="bow.png", output_image_path="cat_bow.png"):
     bgd = image
     fgd = cv2.imread(bow_filter_path, cv2.IMREAD_UNCHANGED)
 
