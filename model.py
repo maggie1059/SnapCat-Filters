@@ -152,11 +152,15 @@ class Model():
     def test(self, test_imgs, test_coords):
         """ Testing routine. """
         # test_imgs = np.expand_dims(test_imgs, axis=-1)
+        new_ims = np.zeros((test_imgs.shape[0], 224, 224, 3))
+        for i in range(len(test_imgs)):
+            image = gray2rgb(test_imgs[i])
+            new_ims[i] = image
         test_coords = np.reshape(test_coords, (-1, 18))
 
         # Run model on test set
         self.model.evaluate(
-            x=test_imgs,
+            x=new_ims,
             y=test_coords,
             verbose=1,
         )
