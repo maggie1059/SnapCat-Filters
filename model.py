@@ -1,5 +1,4 @@
 import tensorflow as tf
-# import keras
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
@@ -13,8 +12,6 @@ from skimage.color import gray2rgb
 import os
 import gc
 import preprocess
-# from tensorflow.keras.applications import MobileNetV2
-# from tensorflow.keras.models import Model
 
 class Model():
 
@@ -29,38 +26,8 @@ class Model():
         inputs = Input(shape=(224, 224, 3))
 
         mobilenetv2_model = tf.keras.applications.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, include_top=False, weights='imagenet', input_tensor=inputs, pooling='max')
-
-        # net = Dense(128, activation='relu') #(mobilenetv2_model.layers[-1].output)
-        # net = Dense(64, activation='relu') #(net)
-        # net = Dense(18, activation='linear') #(net)
-
-        # model = Model(inputs=inputs, outputs=net)
-
-        # model.summary()
         model = Sequential()
         model.add(mobilenetv2_model)
-        # model.add(net)
-
-        # mobilenetv2_model = mobilenetv2.MobileNetV2(input_shape=(224, 224, 3), alpha=1.0, depth_multiplier=1, include_top=False, weights='imagenet', pooling='max')
-        # model.add(mobilenetv2_model)
-        # model.add(Dense(128, activation='relu'))
-        # model.add(Dense(64, activation='relu'))
-        # model.add(Dense(18, activation='linear'))
-
-        # model = Model(inputs=inputs, outputs=net)
-        # model.add(Conv2D(64, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu, input_shape=(self.max_y, self.max_x, 1)))
-        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        # model.add(BatchNormalization())
-        # model.add(Conv2D(128, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
-        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        # model.add(BatchNormalization())
-        # model.add(Conv2D(256, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
-        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        # model.add(BatchNormalization())
-        # model.add(Conv2D(512, kernel_size=3, strides=2, padding='same', activation=tf.nn.leaky_relu))
-        # model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
-        # model.add(BatchNormalization())
-        # model.add(Flatten())
         
         model.add(Dense(512, activation=tf.nn.leaky_relu))
         model.add(Dropout(0.1))
@@ -84,7 +51,6 @@ class Model():
         for i in range(len(images)):
             image = gray2rgb(images[i])
             new_ims[i] = image
-        # print(new_ims.shape)
         return new_ims, coords
     
     def train_model(self):
@@ -96,9 +62,6 @@ class Model():
             print("epoch: ", j)
             folder = j%7
             images, coords = self.get_imgs(folder)
-            # randomly mirror images
-            # images, coords, = preprocess.mirror(images, coords)
-            # images = np.expand_dims(images, axis=-1)
             coords = np.reshape(coords, (-1, 18))
 
             # shuffle examples and indices in same way
@@ -115,7 +78,6 @@ class Model():
         test_coord_path = "processed_test_coords/coord0.npy"
         test_images = np.load(test_img_path)
         test_coords = np.load(test_coord_path)
-        # test_images = np.expand_dims(test_images, axis=-1)
         test_coords = np.reshape(test_coords, (-1, 18))
         return test_images, test_coords
 
@@ -146,12 +108,10 @@ class Model():
         distances = tf.norm(y_pred - y_true, axis=2)
         out = tf.where(distances<threshold, 1., 0.)
         acc = tf.reduce_mean(out)
-        # print(acc)
         return acc
 
     def test(self, test_imgs, test_coords):
         """ Testing routine. """
-        # test_imgs = np.expand_dims(test_imgs, axis=-1)
         new_ims = np.zeros((test_imgs.shape[0], 224, 224, 3))
         for i in range(len(test_imgs)):
             image = gray2rgb(test_imgs[i])
@@ -164,26 +124,3 @@ class Model():
             y=test_coords,
             verbose=1,
         )
-
-    # Testing the model
-    # def test_model(self, imgs_test):    
-        # data_path = join('','*g')
-        # files = glob.glob('./cat-dataset/CAT_01/00000100_002.jpg')
-        # for i,f1 in enumerate(files):       # Test model performance on a screenshot for the webcam
-        #     if f1 == 'Capture.PNG':
-        #         img = imread(f1)
-        #         img = rgb2gray(img)         # Convert RGB image to grayscale
-        #         test_img = resize(img, (96,96))     # Resize to an array of size 96x96
-        # test_img = np.array(test_img)
-        # test_img_input = np.reshape(test_img, (1,96,96,1))      # Model takes input of shape = [batch_size, height, width, no. of channels]
-        # prediction = model.predict(test_img_input)      # shape = [batch_size, values]
-        # visualize_points(test_img, prediction[0])
-        
-        # Test on first 10 samples of the test set
-        # for i in range(len(imgs_test)):
-        #     # test_img_input = np.reshape(imgs_test[i], (1,96,96,1))      # Model takes input of shape = [batch_size, height, width, no. of channels]
-        #     prediction = self.model.predict(imgs_test[i])      # shape = [batch_size, values]
-        #     print(prediction)
-        #     self.visualize_points(imgs_test[i], prediction[0])
-        #     if i == 10:
-        #         break
