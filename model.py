@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization, Input
 from tensorflow.keras import Sequential
-from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.callbacks import ModelCheckpoint
 import glob
 from os.path import join
 import numpy as np
@@ -40,7 +40,7 @@ class Model():
         return model
 
     def compile_model(self):
-        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics = [self.accuracy])
+        self.model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(learning_rate=1e-5), metrics = [self.accuracy])
 
     def get_imgs(self, folder):
         img_path = 'processed_train_imgs/img' + str(folder) + '.npy'
@@ -55,7 +55,7 @@ class Model():
     
     def train_model(self):
         checkpoint = ModelCheckpoint(filepath='weights/checkpoint.hdf5', monitor="val_loss", verbose=1, save_best_only=True, mode="auto")
-        epochs = 250
+        epochs = 100
         batch_size = 32
 
         for j in range(epochs):
@@ -70,7 +70,7 @@ class Model():
             X = images[indices]
             Y = coords[indices]
             # for each batch
-            self.model.fit(X, Y, validation_split=0.1, epochs=1, batch_size=batch_size, callbacks=[checkpoint, ReduceLROnPlateau(monitor="val_loss", factor=0.2, patience=5, verbose=1, mode="auto")])
+            self.model.fit(X, Y, validation_split=0.1, epochs=1, batch_size=batch_size, callbacks=[checkpoint])
             gc.collect()
     
     def get_test_data(self):
@@ -102,7 +102,7 @@ class Model():
         plt.savefig("output" + str(img_index) + ".png")
         plt.close()
 
-    def accuracy(self, y_true, y_pred, threshold=16):
+    def accuracy(self, y_true, y_pred, threshold=5):
         y_true = tf.reshape(y_true, (-1,9,2))
         y_pred = tf.reshape(y_pred, (-1,9,2))
         distances = tf.norm(y_pred - y_true, axis=2)

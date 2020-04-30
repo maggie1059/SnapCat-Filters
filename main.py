@@ -8,24 +8,18 @@ from skimage.color import rgb2gray
 from skimage.transform import resize, rescale
 import matplotlib.pyplot as plt
 from model import Model
-#from vgg_model import VGGModel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def main():
-    vgg_weights_path = "vgg16_imagenet.h5"
-
     img_path = 'processed_train_imgs/img0.npy'
     coord_path = 'processed_train_coords/coord0.npy'
     images = np.load(img_path)
     coords = np.load(coord_path)
     model = Model(224, 224)
-    #model = VGGModel()
-    #model(tf.keras.Input(shape=(224,224,3)))
-    #model.load_weights(vgg_weights_path, by_name=True)
     model.compile_model()
-    #model.load_trained_model()
-    # model.train_model()
+    model.load_trained_model()
+    model.train_model()
     model.load_trained_model()
     
 
