@@ -78,7 +78,6 @@ def ashhat_filter(image, coord):
 
     plt.imshow(image)
     #plt.show()
-    print(image)
     plt.savefig("output.png")
     #cv2.imwrite("output.png", image)
 

@@ -18,8 +18,8 @@ def main():
     coords = np.load(coord_path)
     model = Model(224, 224)
     model.compile_model()
-    model.load_trained_model()
-    model.train_model()
+    #model.load_trained_model()
+    #model.train_model()
     model.load_trained_model()
     
 

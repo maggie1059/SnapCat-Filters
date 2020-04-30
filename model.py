@@ -102,7 +102,7 @@ class Model():
         plt.savefig("output" + str(img_index) + ".png")
         plt.close()
 
-    def accuracy(self, y_true, y_pred, threshold=5):
+    def accuracy(self, y_true, y_pred, threshold=6):
         y_true = tf.reshape(y_true, (-1,9,2))
         y_pred = tf.reshape(y_pred, (-1,9,2))
         distances = tf.norm(y_pred - y_true, axis=2)
