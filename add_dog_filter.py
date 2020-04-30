@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 from skimage.transform import resize
-from imutils import rotate_bound
+#from imutils import rotate_bound
+from convenience import rotate_bound
 
 
 def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
@@ -36,53 +37,41 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
         bottom_midpoint = coords[ear_bottom_right] + 0.5 *(coords[ear_bottom_right] - coords[ear_bottom_left])
     height = int(np.linalg.norm(coords[ear_top]-bottom_midpoint))
     fgd = resize(fgd, (height,int(width*1.3), 4))
-    resized_size = fgd.shape[0]
 
-    angle = np.arctan(abs(dy)/dx)
+    angle = np.arctan(abs(dy)/abs(dx))
 
     if dy >= 0:
         rotate_angle = angle*180./np.pi
     else:
         rotate_angle = 360 - angle*180./np.pi
-
+    
     fgd = rotate_bound(fgd, rotate_angle)
-    rotated_size = fgd.shape[0]
-    
-    if dy < 0:
-        vertical_shift = rotated_size - resized_size + fgd.shape[0] / 3
-        horizontal_shift = int(angle*(rotated_size - resized_size + fgd.shape[1]/2.3) * np.sin(angle))
-        x_left = x_left - int(np.sin(angle)*vertical_shift)
-        y_left = y_left - int(np.sin(angle)*horizontal_shift)
-        x_left = x_left + int(np.cos(angle)*horizontal_shift)
-        y_left = y_left - int(np.cos(angle)*vertical_shift)
-    else:
-        vertical_shift = int(1.8*(rotated_size - resized_size) - angle*fgd.shape[1]/1.5)
-        horizontal_shift = -(rotated_size - resized_size) - fgd.shape[1] / 20
-        x_left = x_left + int(np.sin(angle)*vertical_shift)
-        y_left = y_left + int(np.sin(angle)*horizontal_shift)
-        x_left = x_left + int(np.cos(angle)*horizontal_shift)
-        y_left = y_left - int(np.cos(angle)*vertical_shift)
-    
-    y_offset = 0
-    if y_left < 0:
-        y_offset = -y_left
-    elif y_left > bgd.shape[0]-1:
-        y_offset = -(y_left - bgd.shape[0] + 1)
-
-    x_offset = 0
-    if x_left < 0:
-        x_offset = -x_left
-    elif x_left > bgd.shape[1]-1:
-        x_offset = -(x_left - bgd.shape[1] + 1)
-
+        
     if which_ear == "left":
         roi_top_y = int(y_top - height * 0.4)
         roi_top_x = int(x_top - height * 0.6)
     else:
         roi_top_y = int(y_top - height * 0.4)
         roi_top_x = int(x_top - height * 0.6)
+
+    y_offset = 0
+    if roi_top_y < 0:
+        y_offset = -roi_top_y
+    elif y_left > bgd.shape[0]-1:
+        y_offset = -(roi_top_y - bgd.shape[0] + 1)
+
+    x_offset = 0
+    if roi_top_x < 0:
+        x_offset = -roi_top_x
+    elif x_left > bgd.shape[1]-1:
+        x_offset = -(roi_top_x - bgd.shape[1] + 1)
+
+    roi_top = np.clip(roi_top_y, 0, bgd.shape[0]-1)
+    roi_bottom = np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1)
+    roi_left = np.clip(roi_top_x, 0, bgd.shape[1]-1)
+    roi_right = np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)
         
-    roi = bgd[np.clip(roi_top_y, 0, bgd.shape[0]-1):np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1), np.clip(roi_top_x, 0, bgd.shape[1]-1):np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)]
+    roi = bgd[roi_top:roi_bottom, roi_left:roi_right]
 
     for r in range(roi.shape[0]):
         for c in range(roi.shape[1]):
@@ -91,8 +80,7 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
                     roi[r][c][i] = alpha*fgd[r + y_offset][c + x_offset][i]*255. + (1-alpha)*roi[r][c][i]
 
     # copy back into original image
-    bgd[np.clip(roi_top_y, 0, bgd.shape[0]-1):np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1), np.clip(roi_top_x, 0, bgd.shape[1]-1):np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)] = roi
-
+    bgd[roi_top:roi_bottom, roi_left:roi_right] = roi
     return bgd
 
 def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
@@ -119,50 +107,37 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
     height = int(np.linalg.norm(coords[nose]-midpoint))
 
     fgd = resize(fgd, (int(height*.6),int(width*1.2), 4))
-    resized_size = fgd.shape[0]
 
-    angle = np.arctan(abs(dy)/dx)
+    angle = np.arctan(abs(dy)/abs(dx))
 
     if dy >= 0:
         rotate_angle = angle*180./np.pi
     else:
         rotate_angle = 360 - angle*180./np.pi
-
+    
     fgd = rotate_bound(fgd, rotate_angle)
-    rotated_size = fgd.shape[0]
     
-    if dy < 0:
-        vertical_shift = rotated_size - resized_size + fgd.shape[0] / 3
-        horizontal_shift = int(angle*(rotated_size - resized_size + fgd.shape[1]/2.3) * np.sin(angle))
-        x_left = x_left - int(np.sin(angle)*vertical_shift)
-        y_left = y_left - int(np.sin(angle)*horizontal_shift)
-        x_left = x_left + int(np.cos(angle)*horizontal_shift)
-        y_left = y_left - int(np.cos(angle)*vertical_shift)
-    else:
-        vertical_shift = int(1.8*(rotated_size - resized_size) - angle*fgd.shape[1]/1.5)
-        horizontal_shift = -(rotated_size - resized_size) - fgd.shape[1] / 20
-        x_left = x_left + int(np.sin(angle)*vertical_shift)
-        y_left = y_left + int(np.sin(angle)*horizontal_shift)
-        x_left = x_left + int(np.cos(angle)*horizontal_shift)
-        y_left = y_left - int(np.cos(angle)*vertical_shift)
-    
-    y_offset = 0
-    if y_left < 0:
-        y_offset = -y_left
-    elif y_left > bgd.shape[0]-1:
-        y_offset = -(y_left - bgd.shape[0] + 1)
-
-    x_offset = 0
-    if x_left < 0:
-        x_offset = -x_left
-    elif x_left > bgd.shape[1]-1:
-        x_offset = -(x_left - bgd.shape[1] + 1)
-
     roi_top_y = int(y_nose - fgd.shape[0]*.7)
     roi_top_x = int(x_nose - fgd.shape[1]/2)
 
-    roi = bgd[np.clip(roi_top_y, 0, bgd.shape[0]-1):np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1), np.clip(roi_top_x, 0, bgd.shape[1]-1):np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)]
+    y_offset = 0
+    if roi_top_y < 0:
+        y_offset = -roi_top_y
+    elif y_left > bgd.shape[0]-1:
+        y_offset = -(roi_top_y - bgd.shape[0] + 1)
 
+    x_offset = 0
+    if roi_top_x < 0:
+        x_offset = -roi_top_x
+    elif x_left > bgd.shape[1]-1:
+        x_offset = -(roi_top_x - bgd.shape[1] + 1)
+
+    roi_top = np.clip(roi_top_y, 0, bgd.shape[0]-1)
+    roi_bottom = np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1)
+    roi_left = np.clip(roi_top_x, 0, bgd.shape[1]-1)
+    roi_right = np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)
+        
+    roi = bgd[roi_top:roi_bottom, roi_left:roi_right]
 
     for r in range(roi.shape[0]):
         for c in range(roi.shape[1]):
@@ -171,8 +146,7 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
                     roi[r][c][i] = alpha*fgd[r + y_offset][c + x_offset][i]*255. + (1-alpha)*roi[r][c][i]
 
     # copy back into original image
-    bgd[np.clip(roi_top_y, 0, bgd.shape[0]-1):np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1), np.clip(roi_top_x, 0, bgd.shape[1]-1):np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)] = roi
-
+    bgd[roi_top:roi_bottom, roi_left:roi_right] = roi
     return bgd
 
 

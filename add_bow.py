@@ -24,7 +24,7 @@ def bow_filter(image, coords, bow_filter_path="filters/bow.png", output_image_pa
     fgd = resize(fgd, (size, size, 4))
     resized_size = fgd.shape[0]
 
-    angle = np.arctan(abs(dy)/dx)
+    angle = np.arctan(abs(dy)/abs(dx))
 
     if dy >= 0:
         rotate_angle = angle*180./np.pi
@@ -60,8 +60,12 @@ def bow_filter(image, coords, bow_filter_path="filters/bow.png", output_image_pa
         x_offset = -x_left
     elif x_left > bgd.shape[1]-1:
         x_offset = -(x_left - bgd.shape[1] + 1)
-
-    roi = bgd[np.clip(y_left, 0, bgd.shape[0]-1):np.clip((y_left+fgd.shape[0]), 0, bgd.shape[0]-1), np.clip(x_left, 0, bgd.shape[1]-1):np.clip((x_left+fgd.shape[1]), 0, bgd.shape[1]-1)]
+    
+    roi_top = np.clip(y_left, 0, bgd.shape[0]-1)
+    roi_bottom = np.clip((y_left + fgd.shape[0]), 0, bgd.shape[0]-1)
+    roi_left = np.clip(x_left, 0, bgd.shape[1]-1)
+    roi_right = np.clip((x_left + fgd.shape[1]), 0, bgd.shape[1]-1)
+    roi = bgd[roi_top:roi_bottom, roi_left:roi_right]
 
     for r in range(roi.shape[0]):
         for c in range(roi.shape[1]):
@@ -69,7 +73,7 @@ def bow_filter(image, coords, bow_filter_path="filters/bow.png", output_image_pa
                 for i in range(3):
                     roi[r][c][i] = alpha*fgd[r + y_offset][c + x_offset][i]*255. + (1-alpha)*roi[r][c][i]
 
-    bgd[np.clip(y_left, 0, bgd.shape[0]-1):np.clip((y_left+fgd.shape[0]), 0, bgd.shape[0]-1), np.clip(x_left, 0, bgd.shape[1]-1):np.clip((x_left+fgd.shape[1]), 0, bgd.shape[1]-1)] = roi
+    bgd[roi_top:roi_bottom, roi_left:roi_right] = roi
     cv2.imwrite(output_image_path, bgd)
 
 if __name__ == "__main__":
