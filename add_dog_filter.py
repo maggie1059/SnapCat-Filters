@@ -77,11 +77,8 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
     for r in range(roi.shape[0]):
         for c in range(roi.shape[1]):
             if fgd[r + y_offset][c + x_offset][3] > 0: # if it's not transparent
-                for i in range(3):
-                    roi[r][c][i] = alpha*fgd[r + y_offset][c + x_offset][i]*255. + (1-alpha)*roi[r][c][i]
+                roi[r, c, :] = alpha*fgd[r + y_offset, c + x_offset, :-1]*255. + (1-alpha)*roi[r, c, :]
 
-    # copy back into original image
-    bgd[roi_top:roi_bottom, roi_left:roi_right] = roi
     return bgd
 
 def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
@@ -144,11 +141,8 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
     for r in range(roi.shape[0]):
         for c in range(roi.shape[1]):
             if fgd[r + y_offset][c + x_offset][3] > 0: 
-                for i in range(3):
-                    roi[r][c][i] = alpha*fgd[r + y_offset][c + x_offset][i]*255. + (1-alpha)*roi[r][c][i]
+                roi[r, c, :] = alpha*fgd[r + y_offset, c + x_offset, :-1]*255. + (1-alpha)*roi[r, c, :]
 
-    # copy back into original image
-    bgd[roi_top:roi_bottom, roi_left:roi_right] = roi
     return bgd
 
 
