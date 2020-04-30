@@ -19,17 +19,16 @@ def bow_filter(image, coords, bow_filter_path="filters/bow.png", output_image_pa
 
     dx = float(x_right - x_left)
     dy = float(y_right - y_left)
-
+    
     size = int(np.linalg.norm([dx, dy]))
     fgd = resize(fgd, (size, size, 4))
     resized_size = fgd.shape[0]
 
     angle = np.arctan(abs(dy)/abs(dx))
 
-    if dy >= 0:
-        rotate_angle = angle*180./np.pi
-    else:
-        rotate_angle = 360 - angle*180./np.pi
+    rotate_angle = angle*180./np.pi
+    if dy < 0:
+        rotate_angle = 360 - rotate_angle
 
     fgd = rotate_bound(fgd, rotate_angle)
     rotated_size = fgd.shape[0]

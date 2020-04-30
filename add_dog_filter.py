@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 from skimage.transform import resize
-#from imutils import rotate_bound
-from convenience import rotate_bound
+from imutils import rotate_bound
+#from convenience import rotate_bound
 
 
 def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
@@ -39,12 +39,13 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
     fgd = resize(fgd, (height,int(width*1.3), 4))
 
     angle = np.arctan(abs(dy)/abs(dx))
-
-    if dy >= 0:
-        rotate_angle = angle*180./np.pi
-    else:
-        rotate_angle = 360 - angle*180./np.pi
     
+    rotate_angle = angle*180./np.pi
+    if dx <= 0:
+        rotate_angle = 180 - rotate_angle
+    if dy <= 0:
+        rotate_angle = 360 - rotate_angle
+
     fgd = rotate_bound(fgd, rotate_angle)
         
     if which_ear == "left":
@@ -110,10 +111,11 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
 
     angle = np.arctan(abs(dy)/abs(dx))
 
-    if dy >= 0:
-        rotate_angle = angle*180./np.pi
-    else:
-        rotate_angle = 360 - angle*180./np.pi
+    rotate_angle = angle*180./np.pi
+    if dx <= 0:
+        rotate_angle = 180 - rotate_angle
+    if dy <= 0:
+        rotate_angle = 360 - rotate_angle
     
     fgd = rotate_bound(fgd, rotate_angle)
     
