@@ -80,6 +80,7 @@ def ashhat_filter(image, coord):
     #plt.show()
     plt.savefig("output.png")
     #cv2.imwrite("output.png", image)
+    return image
 
 
 def james_filter(image,coord):
