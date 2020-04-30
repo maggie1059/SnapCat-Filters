@@ -36,7 +36,8 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
     else:
         bottom_midpoint = coords[ear_bottom_right] + 0.5 *(coords[ear_bottom_right] - coords[ear_bottom_left])
     height = int(np.linalg.norm(coords[ear_top]-bottom_midpoint))
-    fgd = resize(fgd, (height,int(width*1.3), 4))
+    # resize ear
+    fgd = resize(fgd, (int(height*1.2),int(width*1.3), 4))
 
     angle = np.arctan(abs(dy)/abs(dx))
     
@@ -154,7 +155,7 @@ def dog_filter(image, coords, output_image_path="cat_dog.png"):
     cv2.imwrite(output_image_path, bgd)
 
 if __name__ == "__main__":
-    for i in range(5):
+    for i in range(6):
         print(i)
         cat_image_path = "cats/cat_" + str(i) + ".jpg"
         coord_path = "cats/coords_" + str(i)
