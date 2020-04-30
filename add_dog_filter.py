@@ -57,13 +57,13 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
     y_offset = 0
     if roi_top_y < 0:
         y_offset = -roi_top_y
-    elif y_left > bgd.shape[0]-1:
+    elif roi_top_y > bgd.shape[0]-1:
         y_offset = -(roi_top_y - bgd.shape[0] + 1)
 
     x_offset = 0
     if roi_top_x < 0:
         x_offset = -roi_top_x
-    elif x_left > bgd.shape[1]-1:
+    elif roi_top_x > bgd.shape[1]-1:
         x_offset = -(roi_top_x - bgd.shape[1] + 1)
 
     roi_top = np.clip(roi_top_y, 0, bgd.shape[0]-1)
@@ -123,13 +123,13 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
     y_offset = 0
     if roi_top_y < 0:
         y_offset = -roi_top_y
-    elif y_left > bgd.shape[0]-1:
+    elif roi_top_y > bgd.shape[0]-1:
         y_offset = -(roi_top_y - bgd.shape[0] + 1)
 
     x_offset = 0
     if roi_top_x < 0:
         x_offset = -roi_top_x
-    elif x_left > bgd.shape[1]-1:
+    elif roi_top_x > bgd.shape[1]-1:
         x_offset = -(roi_top_x - bgd.shape[1] + 1)
 
     roi_top = np.clip(roi_top_y, 0, bgd.shape[0]-1)
