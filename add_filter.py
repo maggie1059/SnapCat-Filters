@@ -2,7 +2,8 @@ import numpy as np
 import os
 import cv2
 from cv2 import imread
-import imutils
+#from imutils import rotate_bound
+from convenience import rotate_bound
 import argparse
 from skimage import io
 from skimage.color import rgb2gray
@@ -16,7 +17,7 @@ from preprocess import get_cats,load_data
 def ashhat_filter(image, coord):
 
     #remove first element (in the care of size 19)
-    coord = coord[1:]
+    #coord = coord[1:]
     #reshape if necessary
     coord = coord.reshape(9,2)
     #use tips when points are out of bounds
@@ -42,7 +43,7 @@ def ashhat_filter(image, coord):
         angle = np.arctan((left_out_ear[1]-right_out_ear[1])/(left_out_ear[0]-right_out_ear[0]))
         hat_width = np.linalg.norm(right_out_ear - left_out_ear)
 
-    rotate_hat = imutils.rotate_bound(hat,angle*180/np.pi)
+    rotate_hat = rotate_bound(hat,angle*180/np.pi)
 
     old_height, old_width, channel = hat.shape
 
@@ -76,7 +77,10 @@ def ashhat_filter(image, coord):
                     image[i+left_out_ear[1]-hw,j+left_out_ear[0],:] = hat[i,j,:-1]
 
     plt.imshow(image)
-    plt.show()
+    #plt.show()
+    print(image)
+    plt.savefig("output.png")
+    #cv2.imwrite("output.png", image)
 
 
 def james_filter(image,coord):
@@ -123,7 +127,7 @@ def james_filter(image,coord):
     #print("height", james_height)
     #print("width",james_width)
 
-    rotate_james = imutils.rotate_bound(james,angle*180/np.pi)
+    rotate_james = rotate_bound(james,angle*180/np.pi)
 
     old_height, old_width, channel = james.shape
 
@@ -225,7 +229,7 @@ for ind in range(len(images)):
         hat_width = np.linalg.norm(right_out_ear - left_out_ear)
     #angle = np.arctan((left_out_ear[1]-right_out_ear[1])/(left_out_ear[0]-right_out_ear[0]))
     #angle = np.arctan((left_tip[1]-right_tip[1])/(left_tip[0]-right_tip[0]))
-    rotate_hat = imutils.rotate_bound(hat,angle*180/np.pi)
+    rotate_hat = rotate_bound(hat,angle*180/np.pi)
 
     old_height, old_width, channel = hat.shape
 
