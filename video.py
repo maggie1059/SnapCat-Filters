@@ -12,9 +12,9 @@ from add_bow import bow_filter
 def preprocess(image):
     # Change to gray scale
     image = rgb2gray(image)
-    
+
     # Pad to square (pad bottom and right side only)
-    max_dim = np.max(image.shape) 
+    max_dim = np.max(image.shape)
     new_image = np.zeros((max_dim, max_dim))
     new_image[0:image.shape[0], 0:image.shape[1]] = image
 
@@ -23,7 +23,7 @@ def preprocess(image):
     new_image = gray2rgb(new_image) / 255.
 
     scaling_factor = max_dim / 224
-    
+
     return np.reshape(new_image, (1, 224, 224, 3)), scaling_factor
 
 
