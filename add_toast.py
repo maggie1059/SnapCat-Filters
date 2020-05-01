@@ -27,6 +27,9 @@ def toast_filter(image,coord):
 
     mouth = coord[2, :]
 
+    left_eye = coord[0,:]
+    right_eye = coord[1,:]
+
     #try using mouth point for face
     mouth_point = coord[2,:]
     toast = cv2.imread('filters/toast.png',cv2.IMREAD_UNCHANGED)
@@ -34,8 +37,10 @@ def toast_filter(image,coord):
     #set hat angle using tips only if out of bounds
     #set width accordingly
     angle = np.arctan((left_tip[1]-right_tip[1])/(left_tip[0]-right_tip[0]))
-    toast_width = np.linalg.norm(right_tip - left_tip)
-    toast_width *= 1.8
+    # toast_width = np.linalg.norm(right_tip - left_tip)
+    toast_width = np.linalg.norm(right_eye - left_eye)
+    toast_width *= 5
+    # toast_width *= 1.8
     toast_height = mouth_point[1] - min(right_tip[1],left_tip[1])
     toast_height *= 2.2
 
@@ -66,15 +71,12 @@ def toast_filter(image,coord):
     for i in range(0,hw):       # Overlay the filter based on the alpha channel
         for j in range(0,hh):
             if toast[i,j,-1] != 0 and i+y >=0 and j+x >=0 and i+y < len(image) and j+x < len(image[0]):
-                # print(i+left_tip[1], j+left_tip[0])
-                # print(i,j)
-                # image[i+left_tip[1],j+left_tip[0],:] = toast[i,j,:-1]
-                # image[i+left_tip[1]-80,j+left_tip[0]-180,:] = toast[i,j,:-1]
                 # y = j + mouth[0] - toast_height/2
                 # x = i + mouth[1] - toast_width/2
                 image[i+y,j+x,:] = toast[i,j,:-1]
 
     plt.imshow(image)
+    plt.savefig("output.png")
     plt.show()
 
 data_dir = os.path.dirname(__file__) + './cat-dataset/small'
