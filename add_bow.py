@@ -1,8 +1,8 @@
 import numpy as np
 import cv2
 from skimage.transform import resize
-#from imutils import rotate_bound
-from convenience import rotate_bound
+from imutils import rotate_bound
+# from convenience import rotate_bound
 
 def bow_filter(image, coords, bow_filter_path="filters/bow.png", output_image_path="cat_bow.png"):
     """

@@ -2,8 +2,8 @@ import numpy as np
 import os
 import cv2
 from cv2 import imread
-#from imutils import rotate_bound
-from convenience import rotate_bound
+from imutils import rotate_bound
+#from convenience import rotate_bound
 import argparse
 from skimage import io
 from skimage.color import rgb2gray
@@ -14,7 +14,7 @@ from preprocess import get_cats,load_data
 
 #TODO: LOAD IN TRAINED MODEL TO GET PREDICTED KEYPOINTS
 
-def ashhat_filter(image, coord):
+def ashhat_filter(image, coord, output_image_path="cat_ashhat.png"):
 
     #remove first element (in the care of size 19)
     #coord = coord[1:]
@@ -78,15 +78,15 @@ def ashhat_filter(image, coord):
 
     plt.imshow(image)
     #plt.show()
-    plt.savefig("output.png")
-    #cv2.imwrite("output.png", image)
+    plt.savefig(output_image_path)
+    #cv2.imwrite("output.png", image * 255)
     return image
 
 
-def james_filter(image,coord):
+def james_filter(image,coord, output_image_path="cat_james.png"):
 
     #remove first element (in the care of size 19)
-    coord = coord[1:]
+    # coord = coord[1:]
     #reshape if necessary
     coord = coord.reshape(9,2)
     #use tips when points are out of bounds
@@ -165,7 +165,9 @@ def james_filter(image,coord):
             '''
 
     plt.imshow(image)
-    plt.show()
+    # plt.show()
+    plt.savefig(output_image_path)
+    plt.close()
 
 
 
