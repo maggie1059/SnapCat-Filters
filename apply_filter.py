@@ -7,6 +7,7 @@ from model import Model
 import tensorflow as tf
 from add_filter import ashhat_filter, james_filter
 from add_bow import bow_filter
+from add_dog_filter import dog_filter
 
 
 def parse_args():
@@ -23,7 +24,7 @@ def parse_args():
     parser.add_argument(
         '--filter',
         required=True,
-        choices=['ashhat', 'bow','james'],
+        choices=['ashhat', 'bow','james', 'dog'],
         help='''Which SnapCat filter to add to image''')
 
     return parser.parse_args()
@@ -79,7 +80,11 @@ def main():
 
     if ARGS.filter == 'james':
         print("Applying James filter!")
-        james_filter(orginal_image, coords)
+        james_filter(original_image, coords)
+
+    if ARGS.filter == 'dog':
+        print("Applying dog filter!")
+        dog_filter(original_image, coords)
 
 
 # Make arguments global
