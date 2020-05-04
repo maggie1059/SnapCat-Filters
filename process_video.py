@@ -6,8 +6,10 @@ from skimage.color import rgb2gray, gray2rgb
 from skimage.transform import resize
 from model import Model
 import tensorflow as tf
-from add_filter import ashhat_filter
+from add_filter import ashhat_filter, james_filter
 from add_bow import bow_filter
+from add_dog_filter import dog_filter
+from add_toast import toast_filter
 
 def preprocess(image):
     # Change to gray scale
@@ -35,7 +37,7 @@ def main():
     model.load_trained_model()
 
     #cap = cv.VideoCapture(0)
-    cap = cv.VideoCapture('kitkat1.MOV')
+    cap = cv.VideoCapture('kitkat4.mp4')
 
     while(cap.isOpened()):
         ret, frame = cap.read()
@@ -46,11 +48,14 @@ def main():
         predicted = predicted.numpy()
 
         coords = np.floor(predicted * scaling_factor).astype(np.int)
-        new_im = ashhat_filter(frame, coords)
+        #new_im = james_filter(frame, coords)
+        new_im = toast_filter(frame, coords)
+
         new_image_chan = np.copy(new_im[:,:,0])
         new_im[:,:,0] = new_im[:,:,2]
         new_im[:,:,2] = new_image_chan
-        # new_im = bow_filter(frame, coords)
+
+        #new_im = bow_filter(frame, coords)
         # new_im *= 255
         # new_im = new_im.astype(np.int)
 

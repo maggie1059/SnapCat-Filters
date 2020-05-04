@@ -40,7 +40,7 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
     fgd = resize(fgd, (int(height*1.2),int(width*1.3), 4))
 
     angle = np.arctan(abs(dy)/abs(dx))
-    
+
     rotate_angle = angle*180./np.pi
     if dx <= 0:
         rotate_angle = 180 - rotate_angle
@@ -48,7 +48,7 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
         rotate_angle = 360 - rotate_angle
 
     fgd = rotate_bound(fgd, rotate_angle)
-        
+
     if which_ear == "left":
         roi_top_y = int(y_top - height * 0.4)
         roi_top_x = int(x_top - height * 0.6)
@@ -72,7 +72,7 @@ def add_ear_filter(image, coords, left, right, top, filter_path, which_ear):
     roi_bottom = np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1)
     roi_left = np.clip(roi_top_x, 0, bgd.shape[1]-1)
     roi_right = np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)
-        
+
     roi = bgd[roi_top:roi_bottom, roi_left:roi_right]
 
     for r in range(roi.shape[0]):
@@ -114,9 +114,9 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
         rotate_angle = 180 - rotate_angle
     if dy <= 0:
         rotate_angle = 360 - rotate_angle
-    
+
     fgd = rotate_bound(fgd, rotate_angle)
-    
+
     roi_top_y = int(y_nose - fgd.shape[0]*.7)
     roi_top_x = int(x_nose - fgd.shape[1]/2)
 
@@ -136,12 +136,12 @@ def add_nose_filter(image, coords, filter_path="filters/dog_nose.png"):
     roi_bottom = np.clip((roi_top_y+fgd.shape[0]), 0, bgd.shape[0]-1)
     roi_left = np.clip(roi_top_x, 0, bgd.shape[1]-1)
     roi_right = np.clip((roi_top_x+fgd.shape[1]), 0, bgd.shape[1]-1)
-        
+
     roi = bgd[roi_top:roi_bottom, roi_left:roi_right]
 
     for r in range(roi.shape[0]):
         for c in range(roi.shape[1]):
-            if fgd[r + y_offset][c + x_offset][3] > 0: 
+            if fgd[r + y_offset][c + x_offset][3] > 0:
                 roi[r, c, :] = alpha*fgd[r + y_offset, c + x_offset, :-1]*255. + (1-alpha)*roi[r, c, :]
 
     return bgd
@@ -151,8 +151,10 @@ def dog_filter(image, coords, output_image_path="cat_dog.png"):
     bgd = add_ear_filter(image, coords, 3, 5, 4, "filters/dog_left_ear.png", "left")
     bgd = add_ear_filter(image, coords, 6, 8, 7, "filters/dog_right_ear.png", "right")
     bgd = add_nose_filter(image, coords)
-    
-    cv2.imwrite(output_image_path, bgd)
+
+    return bgd
+
+    #cv2.imwrite(output_image_path, bgd)
 
 if __name__ == "__main__":
     for i in range(6):
@@ -163,4 +165,3 @@ if __name__ == "__main__":
         with open(coord_path) as f:
             coords = np.array([int(x) for x in f.read().split()[1:]]).reshape((9, 2))
         dog_filter(image, coords, output_image_path="cat_dog_" + str(i) + ".png")
-

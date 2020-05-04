@@ -163,7 +163,7 @@ def james_filter(image,coord, output_image_path="cat_james.png"):
                 if hat[i,j,-1] != 0 and i+left_out_ear[1]-hw >=0 and j+left_out_ear[0] >=0:
                     image[i+left_out_ear[1],j+left_out_ear[0],:] = hat[i,j,:-1]
             '''
-
+    return image
     plt.imshow(image)
     # plt.show()
     plt.savefig(output_image_path)

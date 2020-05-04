@@ -14,9 +14,9 @@ from preprocess import get_cats,load_data
 def toast_filter(image,coord):
 
     #remove first element (in the case of size 19)
-    coord = coord[1:]
+    #coord = coord[1:]
     #reshape if necessary
-    coord = coord.reshape(9,2)
+    #coord = coord.reshape(9,2)
     #use tips when points are out of bounds
     left_tip = coord[4,:]
     right_tip = coord[-2,:]
@@ -74,6 +74,8 @@ def toast_filter(image,coord):
                 # y = j + mouth[0] - toast_height/2
                 # x = i + mouth[1] - toast_width/2
                 image[i+y,j+x,:] = toast[i,j,:-1]
+
+    return image
 
     plt.imshow(image)
     plt.savefig("output.png")
